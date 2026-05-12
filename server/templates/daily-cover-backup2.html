@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ====== 封面 — 摸鱼日报风格报纸头版 ====== */
+
+    /* 顶部报头区：标题左 + 日历右 */
+    .masthead {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding-bottom: 12px;
+    }
+
+    .masthead-left {
+      flex: 1;
+    }
+
+    .masthead-name {
+      font-size: 88px;
+      font-weight: 900;
+      color: var(--paper);
+      letter-spacing: 10px;
+      line-height: 1.1;
+      background: var(--brown);
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .masthead-stars {
+      font-size: 28px;
+      color: var(--brown-light);
+      letter-spacing: 12px;
+      text-align: center;
+      margin-bottom: 4px;
+      display: block;
+      padding-left: 28px;
+    }
+
+    .masthead-sub {
+      font-size: 22px;
+      color: var(--brown-light);
+      letter-spacing: 8px;
+      text-align: center;
+      padding-left: 28px;
+    }
+
+    /* 日历框 */
+    .calendar-box {
+      width: 220px;
+      border: 2px solid var(--brown);
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+      text-align: center;
+      background: rgba(92,58,33,0.04);
+    }
+
+    .calendar-top {
+      background: var(--brown);
+      color: var(--paper);
+      font-size: 22px;
+      padding: 8px 0;
+      letter-spacing: 4px;
+      font-weight: 700;
+    }
+
+    .calendar-day {
+      font-size: 96px;
+      font-weight: 900;
+      color: var(--brown);
+      line-height: 1.15;
+      padding: 6px 0 0 0;
+      font-family: "Georgia", serif;
+    }
+
+    .calendar-weekday {
+      font-size: 22px;
+      color: var(--brown-mid);
+      padding-bottom: 10px;
+      letter-spacing: 4px;
+    }
+
+    /* 信息栏 — 期号 + 标语 */
+    .info-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-top: 3px solid var(--brown);
+      border-bottom: 1px solid var(--brown);
+      margin-bottom: 10px;
+    }
+
+    .info-edition {
+      font-size: 24px;
+      color: var(--ink-mid);
+      letter-spacing: 2px;
+    }
+
+    .info-slogan {
+      font-size: 24px;
+      color: var(--brown);
+      font-weight: 700;
+      letter-spacing: 4px;
+      background: rgba(92,58,33,0.08);
+      padding: 6px 18px;
+      border-radius: 4px;
+    }
+
+    .info-source {
+      font-size: 20px;
+      color: var(--ink-muted);
+      font-family: "Georgia", serif;
+    }
+
+    /* 引语/标题 — 类似"俗话说" */
+    .quote-area {
+      text-align: center;
+      padding: 22px 20px;
+      margin-bottom: 10px;
+      border-bottom: 2px dashed var(--rule);
+    }
+
+    .quote-label {
+      display: inline-block;
+      font-size: 22px;
+      color: var(--paper);
+      background: var(--maroon);
+      padding: 6px 22px;
+      letter-spacing: 6px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      border-radius: 3px;
+    }
+
+    .quote-text {
+      font-size: 44px;
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1.5;
+      letter-spacing: 2px;
+    }
+
+    .quote-summary {
+      font-size: 26px;
+      color: var(--ink-mid);
+      line-height: 1.6;
+      margin-top: 14px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* 两栏区域：版面统计 + 每日一言 */
+    .dual-panel {
+      display: flex;
+      gap: 0;
+      margin-bottom: 10px;
+      border-bottom: 2px dashed var(--rule);
+      padding-bottom: 16px;
+    }
+
+    .panel-stats {
+      flex: 3;
+      padding-right: 24px;
+      border-right: 1px dashed var(--rule);
+    }
+
+    .panel-quote {
+      flex: 2;
+      padding-left: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .panel-header {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--paper);
+      background: var(--brown-mid);
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      letter-spacing: 4px;
+      writing-mode: horizontal-tb;
+    }
+
+    /* 版面统计列表 */
+    .stats-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px dotted var(--rule-light);
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .stat-emoji {
+      font-size: 24px;
+      width: 36px;
+      text-align: center;
+    }
+
+    .stat-name {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 2px;
+      flex: 1;
+    }
+
+    .stat-num {
+      font-size: 40px;
+      font-weight: 900;
+      color: var(--maroon);
+      font-family: "Georgia", serif;
+      min-width: 50px;
+      text-align: right;
+    }
+
+    .stat-unit {
+      font-size: 18px;
+      color: var(--ink-light);
+    }
+
+    /* 每日一言 */
+    .daily-quote-text {
+      font-size: 28px;
+      color: var(--ink-mid);
+      line-height: 1.8;
+      font-style: italic;
+      position: relative;
+      padding-left: 20px;
+      border-left: 3px solid var(--brown-light);
+    }
+
+    /* 今日要闻列表 */
+    .news-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .news-section-header {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--paper);
+      background: var(--brown);
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 4px;
+      margin-bottom: 14px;
+      letter-spacing: 6px;
+    }
+
+    .news-preview-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .news-preview-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px dashed var(--rule-light);
+    }
+
+    .news-preview-item:last-child {
+      border-bottom: none;
+    }
+
+    .news-preview-num {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--paper);
+      background: var(--brown);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: "Georgia", serif;
+    }
+
+    .news-preview-text {
+      font-size: 30px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    /* 底部 */
+    .cover-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 3px solid var(--brown);
+    }
+
+    .cover-total {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .cover-total-label {
+      font-size: 24px;
+      color: var(--ink-mid);
+      letter-spacing: 3px;
+    }
+
+    .cover-total-num {
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--maroon);
+      font-family: "Georgia", serif;
+      line-height: 1;
+    }
+
+    .cover-total-unit {
+      font-size: 24px;
+      color: var(--ink-mid);
+    }
+
+    .cover-swipe {
+      font-size: 24px;
+      color: var(--ink-muted);
+      letter-spacing: 3px;
+    }
+
+    .cover-swipe .arrow {
+      color: var(--maroon);
+      font-weight: 700;
+    }
+
+    /* 底部装饰 */
+    .cover-deco {
+      text-align: center;
+      color: var(--rule);
+      font-size: 20px;
+      letter-spacing: 8px;
+      margin-top: 8px;
+    }
+  </style>
+  <title>AI 日报 - 封面</title>
+</head>
+<body>
+  <div class="card">
+    <div class="card-inner">
+
+      <!-- 报头：标题 + 日历框 -->
+      <div class="masthead">
+        <div class="masthead-left">
+          <div class="masthead-name">AI 日报</div>
+          <span class="masthead-stars">☆ ☆ ☆ AI · HOT ☆ ☆ ☆</span>
+          <span class="masthead-sub">DAILY AI BRIEFING</span>
+        </div>
+        <div class="calendar-box">
+          <div class="calendar-top">{{DATE_YEAR}}年{{DATE_MONTH}}月</div>
+          <div class="calendar-day">{{DATE_DAY}}</div>
+          <div class="calendar-weekday">{{WEEKDAY}}</div>
+        </div>
+      </div>
+
+      <!-- 信息栏 -->
+      <div class="info-bar">
+        <span class="info-edition">{{DATE_FULL}} · 每日精选</span>
+        <span class="info-slogan">AI前沿 · 一报知天下</span>
+        <span class="info-source">aihot.virxact.com</span>
+      </div>
+
+      <!-- 引语/头条 -->
+      <div class="quote-area">
+        <div class="quote-label">今 日 头 条</div>
+        <div class="quote-text">{{LEAD_TEXT}}</div>
+        <div class="quote-summary">{{LEAD_SUMMARY}}</div>
+      </div>
+
+      <!-- 两栏：版面统计 + 每日一言 -->
+      <div class="dual-panel">
+        <div class="panel-stats">
+          <div class="panel-header">今日版面</div>
+          <div class="stats-list">
+            <div class="stat-row">
+              <span class="stat-emoji">🤖</span>
+              <span class="stat-name">模型发布</span>
+              <span class="stat-num">{{COUNT_MODELS}}</span>
+              <span class="stat-unit">条</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-emoji">🚀</span>
+              <span class="stat-name">产品发布</span>
+              <span class="stat-num">{{COUNT_PRODUCTS}}</span>
+              <span class="stat-unit">条</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-emoji">📰</span>
+              <span class="stat-name">行业动态</span>
+              <span class="stat-num">{{COUNT_INDUSTRY}}</span>
+              <span class="stat-unit">条</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-emoji">📄</span>
+              <span class="stat-name">论文研究</span>
+              <span class="stat-num">{{COUNT_PAPER}}</span>
+              <span class="stat-unit">条</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-emoji">💡</span>
+              <span class="stat-name">技巧观点</span>
+              <span class="stat-num">{{COUNT_TIP}}</span>
+              <span class="stat-unit">条</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-quote">
+          <div class="panel-header">每日一言</div>
+          <div class="daily-quote-text">{{DAILY_QUOTE}}</div>
+        </div>
+      </div>
+
+      <!-- 今日要闻预览 -->
+      <div class="news-section">
+        <div class="news-section-header">今 日 要 闻</div>
+        <div class="news-preview-list">
+          <div class="news-preview-item">
+            <div class="news-preview-num">1</div>
+            <div class="news-preview-text">{{PREVIEW_1}}</div>
+          </div>
+          <div class="news-preview-item">
+            <div class="news-preview-num">2</div>
+            <div class="news-preview-text">{{PREVIEW_2}}</div>
+          </div>
+          <div class="news-preview-item">
+            <div class="news-preview-num">3</div>
+            <div class="news-preview-text">{{PREVIEW_3}}</div>
+          </div>
+          <div class="news-preview-item">
+            <div class="news-preview-num">4</div>
+            <div class="news-preview-text">{{PREVIEW_4}}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部 -->
+      <div class="cover-bottom">
+        <div class="cover-total">
+          <span class="cover-total-label">本期共</span>
+          <span class="cover-total-num">{{TOTAL_COUNT}}</span>
+          <span class="cover-total-unit">条</span>
+        </div>
+        <div class="cover-swipe">左滑查看详情 <span class="arrow">→</span></div>
+      </div>
+      <div class="cover-deco">— ✦ — ✦ — ✦ — ✦ — ✦ —</div>
+
+    </div>
+  </div>
+</body>
+</html>

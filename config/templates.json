@@ -1,0 +1,17 @@
+{
+  "themes": [
+    {
+      "id": "win95",
+      "name": "Windows 95 复古",
+      "description": "经典 Win95 窗口风格，VT323 像素字体，灰色窗体 + 蓝色标题栏",
+      "preview": "🖥️"
+    },
+    {
+      "id": "minimal",
+      "name": "白色简约",
+      "description": "白底简约现代风，蓝紫渐变装饰，圆角卡片排版",
+      "preview": "✨"
+    }
+  ],
+  "activeThemeId": "win95"
+}

@@ -1,0 +1,30 @@
+services:
+  server:
+    build: ./server
+    container_name: aibot-server
+    ports:
+      - "3457:3457"
+    environment:
+      - PORT=3457
+      - NODE_ENV=production
+      - AIBOT_PASSWORD=ai2026
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+    volumes:
+      - ./server/config:/app/config
+    restart: unless-stopped
+
+  client:
+    build: ./client
+    container_name: aibot-client
+    ports:
+      - "3456:3456"
+    environment:
+      - PORT=3456
+      - NODE_ENV=production
+    volumes:
+      - ./client/config:/app/config
+      - ./client/output:/app/output
+      - ./client/templates:/app/templates
+    depends_on:
+      - server
+    restart: unless-stopped

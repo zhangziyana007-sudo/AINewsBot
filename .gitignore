@@ -1,0 +1,33 @@
+# 依赖
+node_modules/
+
+# 输出文件（生成的 HTML/PNG）
+output/
+client/output/
+server/output/
+
+# 环境变量
+.env
+server/.env
+
+# 配置中的敏感信息（API Key 等）
+config/ai-models.json
+config/server.json
+client/config/server.json
+server/config/models.json
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 日志
+*.log
+
+# 锁文件（可选，如需精确依赖可去掉）
+# package-lock.json

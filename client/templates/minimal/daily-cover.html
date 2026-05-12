@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <link rel="stylesheet" href="styles.css">
+  <title>AI Daily - Cover</title>
+</head>
+<body>
+  <div class="card">
+    <div class="card-inner">
+      <!-- 顶部渐变条 -->
+      <div class="top-bar"></div>
+
+      <!-- 头部 -->
+      <div class="header">
+        <div class="header-brand">
+          <div class="header-icon">⚡</div>
+          <div class="header-title">{{TEXT_TITLEBAR}}</div>
+        </div>
+        <div class="header-date">{{DATE_FULL}} {{WEEKDAY}}</div>
+      </div>
+
+      <!-- 内容区 -->
+      <div class="content-area">
+        <!-- 大标题 -->
+        <div class="cover-hero">
+          <div class="cover-hero-label">{{TEXT_LABEL}}</div>
+          <div class="cover-hero-title">
+            {{MAIN_TITLE_HTML}}
+          </div>
+          <div class="cover-hero-sub">"{{DAILY_QUOTE}}"</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 头条 -->
+        <div class="headline-card">
+          <div class="headline-tag">{{TEXT_HEADLINE_TAG}}</div>
+          <div class="headline-title">{{LEAD_TEXT}}</div>
+          <div class="headline-summary">{{LEAD_SUMMARY}}</div>
+        </div>
+
+        <!-- 新闻列表 -->
+        <div class="list-header">
+          <span class="list-header-text">{{TEXT_LIST_TITLE}}</span>
+          <span class="list-header-count">共 {{TOTAL_COUNT}} 条</span>
+        </div>
+        <ul class="cover-news-list">
+          {{NEWS_LIST_HTML}}
+        </ul>
+
+        <!-- 底部提示 -->
+        <div class="footer-hint">{{TEXT_BOTTOM_HINT}}</div>
+      </div>
+
+      <!-- 底栏 -->
+      <div class="footer">
+        <span class="footer-left">{{TEXT_STATUS_LEFT}}</span>
+        <span class="footer-right">{{TEXT_STATUS_RIGHT}}</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

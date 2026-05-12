@@ -1,0 +1,61 @@
+{
+  "models": [
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "baseUrl": "https://api.deepseek.com",
+      "model": "deepseek-chat",
+      "apiKey": "",
+      "enabled": true
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "baseUrl": "https://api.openai.com",
+      "model": "gpt-4o-mini",
+      "apiKey": "",
+      "enabled": false
+    },
+    {
+      "id": "qwen",
+      "name": "通义千问",
+      "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode",
+      "model": "qwen-plus",
+      "apiKey": "",
+      "enabled": false
+    },
+    {
+      "id": "moonshot",
+      "name": "Kimi (月之暗面)",
+      "baseUrl": "https://api.moonshot.cn",
+      "model": "moonshot-v1-8k",
+      "apiKey": "",
+      "enabled": false
+    },
+    {
+      "id": "zhipu",
+      "name": "智谱 GLM",
+      "baseUrl": "https://open.bigmodel.cn/api/paas",
+      "model": "glm-4-flash",
+      "apiKey": "",
+      "enabled": false
+    },
+    {
+      "id": "gemini",
+      "name": "Google Gemini",
+      "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "model": "gemini-2.0-flash",
+      "apiKey": "",
+      "enabled": false
+    },
+    {
+      "id": "xiaomi",
+      "name": "小米 MiMo",
+      "baseUrl": "https://api.xiaomimimo.com",
+      "model": "mimo-v2.5-pro",
+      "apiKey": "",
+      "enabled": false
+    }
+  ],
+  "activeModelId": "deepseek"
+}

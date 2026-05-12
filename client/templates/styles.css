@@ -1,0 +1,365 @@
+/*
+ * 小红书 AI 日报 — Windows 95 复古记事本风格
+ * 参考：Text.exe 经典 Win95 窗口界面
+ * 配色：灰色窗口装饰 + 蓝色标题栏 + 3D 凸凹边框
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 1080px;
+  height: 1440px;
+  overflow: hidden;
+  background: #c0c0c0;
+}
+
+:root {
+  --win-bg: #c0c0c0;
+  --win-title: #37548d;
+  --win-white: #ffffff;
+  --win-black: #000000;
+  --win-dark: #808080;
+  --win-light: #dfdfdf;
+  --win-highlight: #ffffff;
+  --win-shadow: #404040;
+  --content-bg: #f0f0f0;
+  --text-color: #000000;
+  --text-muted: #555555;
+  --warn-yellow: #ffcc00;
+  --accent-blue: #37548d;
+  --accent-orange: #e07020;
+  --pixel-font: 'VT323', 'Courier New', monospace;
+  --body-font: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+}
+
+/* ====== 整体卡片 — Windows 窗口 ====== */
+.card {
+  width: 1080px;
+  height: 1440px;
+  overflow: hidden;
+  position: relative;
+  font-family: var(--body-font);
+  color: var(--text-color);
+  background: var(--win-bg);
+  /* Windows 3D 凸起效果 */
+  border-top: 3px solid var(--win-highlight);
+  border-left: 3px solid var(--win-highlight);
+  border-right: 3px solid var(--win-black);
+  border-bottom: 3px solid var(--win-black);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px; right: 3px; bottom: 3px;
+  border-top: 2px solid var(--win-light);
+  border-left: 2px solid var(--win-light);
+  border-right: 2px solid var(--win-dark);
+  border-bottom: 2px solid var(--win-dark);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 5px;
+}
+
+/* ====== 标题栏 ====== */
+.title-bar {
+  background: var(--win-title);
+  color: var(--win-white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  font-family: var(--pixel-font);
+  font-size: 38px;
+  letter-spacing: 2px;
+  line-height: 1;
+  min-height: 54px;
+  flex-shrink: 0;
+}
+
+.title-bar-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.title-bar-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.title-bar-controls .btn-ctrl {
+  width: 38px;
+  height: 34px;
+  background: var(--win-bg);
+  border-top: 2px solid var(--win-highlight);
+  border-left: 2px solid var(--win-highlight);
+  border-right: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--pixel-font);
+  font-size: 26px;
+  color: var(--win-black);
+  line-height: 1;
+}
+
+/* ====== 菜单栏 ====== */
+.menu-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--win-bg);
+  border-bottom: 1px solid var(--win-dark);
+  min-height: 48px;
+  flex-shrink: 0;
+}
+
+.menu-items {
+  display: flex;
+  flex-direction: row;
+  gap: 36px;
+  font-family: var(--pixel-font);
+  font-size: 32px;
+  color: var(--text-color);
+}
+
+.menu-items span { cursor: default; }
+.menu-items .underline { text-decoration: underline; }
+
+/* 警告图标 */
+.warn-icon {
+  width: 60px;
+  height: 56px;
+  position: relative;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.warn-icon .triangle {
+  width: 0; height: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 52px solid var(--warn-yellow);
+}
+
+.warn-icon .exclaim {
+  position: absolute;
+  bottom: 8px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--pixel-font);
+  font-size: 34px;
+  font-weight: 900;
+  color: var(--win-black);
+  line-height: 1;
+}
+
+/* ====== 工具栏 ====== */
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  background: var(--win-bg);
+  border-bottom: 2px solid var(--win-dark);
+  flex-shrink: 0;
+}
+
+.toolbar .btn-tool {
+  font-family: var(--pixel-font);
+  font-size: 30px;
+  padding: 6px 22px;
+  background: var(--win-bg);
+  border-top: 2px solid var(--win-highlight);
+  border-left: 2px solid var(--win-highlight);
+  border-right: 2px solid var(--win-shadow);
+  border-bottom: 2px solid var(--win-shadow);
+  color: var(--text-color);
+  cursor: default;
+}
+
+/* ====== 主内容区 ====== */
+.content-area {
+  flex: 1;
+  background: var(--content-bg);
+  border-top: 2px solid var(--win-dark);
+  border-left: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-highlight);
+  border-bottom: 2px solid var(--win-highlight);
+  margin: 4px;
+  padding: 28px 36px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ====== 状态栏 ====== */
+.status-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 6px;
+  font-family: var(--pixel-font);
+  font-size: 26px;
+  color: var(--text-color);
+  min-height: 46px;
+  flex-shrink: 0;
+}
+
+.status-bar .status-section {
+  padding: 5px 18px;
+  border-top: 2px solid var(--win-dark);
+  border-left: 2px solid var(--win-dark);
+  border-right: 2px solid var(--win-highlight);
+  border-bottom: 2px solid var(--win-highlight);
+  white-space: nowrap;
+}
+
+.status-bar .status-left { flex: 3; }
+.status-bar .status-right { flex: 2; text-align: right; }
+
+/* ====== 新闻列表 ====== */
+.news-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.news-item {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid #ccc;
+  align-items: flex-start;
+}
+
+.news-item:last-child { border-bottom: none; }
+
+.news-index {
+  width: 42px;
+  height: 42px;
+  background: var(--accent-blue);
+  color: var(--win-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--pixel-font);
+  font-size: 30px;
+  font-weight: 700;
+  flex-shrink: 0;
+  line-height: 1;
+  border-top: 2px solid #5a7ab5;
+  border-left: 2px solid #5a7ab5;
+  border-right: 2px solid #1a2d50;
+  border-bottom: 2px solid #1a2d50;
+}
+
+.news-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.news-title {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.news-summary {
+  font-size: 25px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 4px;
+}
+
+.news-meta {
+  font-size: 20px;
+  color: #999;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.news-cat-tag {
+  display: inline-block;
+  font-size: 20px;
+  color: var(--accent-blue);
+  background: rgba(55, 84, 141, 0.08);
+  padding: 2px 10px;
+  margin-bottom: 6px;
+  font-family: var(--pixel-font);
+  border: 1px solid rgba(55, 84, 141, 0.2);
+}
+
+.news-more {
+  text-align: center;
+  font-size: 22px;
+  color: var(--text-muted);
+  padding: 16px 0;
+  border-top: 1px dashed #bbb;
+  margin-top: 8px;
+}
+
+.news-more strong {
+  color: var(--accent-blue);
+  font-size: 28px;
+  font-family: var(--pixel-font);
+}
+
+/* ====== 内容页 section-header ====== */
+.section-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  background: var(--accent-blue);
+  color: var(--win-white);
+  padding: 14px 22px;
+  margin-bottom: 16px;
+  font-family: var(--pixel-font);
+  border-top: 2px solid #5a7ab5;
+  border-left: 2px solid #5a7ab5;
+  border-right: 2px solid #1a2d50;
+  border-bottom: 2px solid #1a2d50;
+  flex-shrink: 0;
+}
+
+.section-emoji { font-size: 34px; }
+.section-title { font-size: 38px; font-weight: 700; flex: 1; }
+.section-count { font-size: 26px; opacity: 0.8; }
+
+/* ====== 页码指示器 ====== */
+.page-indicator {
+  text-align: center;
+  font-family: var(--pixel-font);
+  font-size: 26px;
+  color: var(--text-muted);
+  padding: 14px 0 0;
+  margin-top: auto;
+  letter-spacing: 4px;
+}

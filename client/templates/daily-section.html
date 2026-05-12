@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <link rel="stylesheet" href="styles.css">
+  <title>AI Daily - {{SECTION_TITLE}}</title>
+</head>
+<body>
+  <div class="card">
+    <div class="card-inner">
+      <!-- 标题栏 -->
+      <div class="title-bar">
+        <span class="title-bar-text">AI_Daily.exe - {{SECTION_TITLE}}</span>
+        <div class="title-bar-controls">
+          <div class="btn-ctrl">&#9472;</div>
+          <div class="btn-ctrl">&#9633;</div>
+          <div class="btn-ctrl">&times;</div>
+        </div>
+      </div>
+
+      <!-- 菜单栏 -->
+      <div class="menu-bar">
+        <div class="menu-items">
+          <span><span class="underline">F</span>ile</span>
+          <span><span class="underline">E</span>dit</span>
+          <span><span class="underline">V</span>iew</span>
+          <span><span class="underline">H</span>elp</span>
+        </div>
+        <div class="warn-icon">
+          <div class="triangle"></div>
+          <span class="exclaim">!</span>
+        </div>
+      </div>
+
+      <!-- 工具栏 -->
+      <div class="toolbar">
+        <div class="btn-tool">Back</div>
+        <div class="btn-tool">Share</div>
+      </div>
+
+      <!-- 内容区 -->
+      <div class="content-area">
+        <!-- 板块标题 -->
+        <div class="section-header">
+          <span class="section-emoji">{{SECTION_EMOJI}}</span>
+          <span class="section-title">{{SECTION_TITLE}}</span>
+          <span class="section-count">{{SECTION_COUNT}} 条</span>
+        </div>
+
+        <!-- 新闻列表 -->
+        <div class="news-list">
+          {{NEWS_ITEMS}}
+        </div>
+
+        <!-- 页码 -->
+        <div class="page-indicator">
+          [ {{PAGE_NUM}} / {{TOTAL_PAGES}} ]
+        </div>
+      </div>
+
+      <!-- 状态栏 -->
+      <div class="status-bar">
+        <div class="status-section status-left">{{DATE_SHORT}} {{WEEKDAY}} &nbsp;&nbsp; {{SECTION_TITLE}}</div>
+        <div class="status-section status-right">Page {{PAGE_NUM}}</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

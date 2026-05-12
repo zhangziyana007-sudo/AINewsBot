@@ -1,0 +1,464 @@
+/* 
+ * 小红书 AI 日报 — 经典新闻报纸风格 v5
+ * 风格：复古报刊 + 衬线标题 + 暖纸张底色 + 经典红黑配色
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 1080px;
+  height: 1440px;
+  overflow: hidden;
+  background: #F4EDE4;
+}
+
+:root {
+  --paper: #F4EDE4;
+  --paper-light: #FAF6F0;
+  --ink: #1A1A1A;
+  --ink-mid: #3D3D3D;
+  --ink-light: #666666;
+  --ink-muted: #999999;
+  --ink-faint: #BCBCBC;
+  --red: #C41E3A;
+  --red-dark: #9B1B30;
+  --red-light: #E8384F;
+  --rule: #C4B9A8;
+  --rule-dark: #8C7E6A;
+  --rule-light: #DDD5C8;
+  --card-bg: rgba(255, 255, 255, 0.55);
+  --shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.card {
+  width: 1080px;
+  height: 1440px;
+  overflow: hidden;
+  position: relative;
+  font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Georgia", serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* 纸张纹理 */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.008) 3px,
+      rgba(0,0,0,0.008) 4px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 顶部红色粗线 */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--red);
+  z-index: 2;
+}
+
+.card-inner {
+  position: relative;
+  z-index: 1;
+  padding: 48px 56px 40px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ====== 顶部报头区 ====== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+  padding-bottom: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--red);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 900;
+  color: white;
+  letter-spacing: 0;
+  font-family: "Georgia", serif;
+}
+
+.brand-title {
+  font-size: 38px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: 6px;
+  font-family: "PingFang SC", "Noto Sans SC", sans-serif;
+}
+
+.date-badge {
+  font-size: 24px;
+  color: var(--ink-light);
+  font-weight: 400;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-family: "Georgia", serif;
+  letter-spacing: 1px;
+}
+
+/* 分隔线 — 经典双线 */
+.divider {
+  width: 100%;
+  height: 0;
+  border-top: 3px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding-top: 3px;
+  margin-top: 10px;
+  margin-bottom: 24px;
+  background: transparent;
+}
+
+/* ====== Lead 摘要区 ====== */
+.lead-section {
+  background: transparent;
+  border-radius: 0;
+  padding: 0 0 24px 0;
+  margin-bottom: 20px;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+  overflow: visible;
+}
+
+.lead-section::before {
+  display: none;
+}
+
+.lead-label {
+  font-size: 12px;
+  color: var(--red);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 6px;
+  margin-bottom: 12px;
+  opacity: 1;
+  font-family: "PingFang SC", sans-serif;
+}
+
+.lead-text {
+  font-size: 26px;
+  line-height: 1.7;
+  color: var(--ink);
+  font-weight: 700;
+  font-family: "PingFang SC", "Noto Sans SC", sans-serif;
+}
+
+/* ====== 版块统计卡片 ====== */
+.stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  justify-content: center;
+}
+
+.stats-row {
+  display: flex;
+  gap: 10px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--rule-light);
+  border-radius: 6px;
+  padding: 24px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--red);
+  opacity: 0.6;
+  border-radius: 0;
+}
+
+.stat-card.full-width {
+  flex: auto;
+}
+
+.stat-emoji {
+  font-size: 30px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(196, 30, 58, 0.06);
+  border-radius: 6px;
+  border: 1px solid var(--rule-light);
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+  font-family: "PingFang SC", sans-serif;
+}
+
+.stat-count {
+  font-size: 14px;
+  color: var(--ink-light);
+  font-weight: 400;
+}
+
+.stat-count strong {
+  color: var(--red);
+  font-weight: 800;
+  font-size: 26px;
+  margin-right: 2px;
+  font-family: "Georgia", serif;
+}
+
+/* ====== 底部引导区 ====== */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 2px solid var(--ink);
+}
+
+.footer-hint {
+  font-size: 20px;
+  color: var(--ink-light);
+  font-weight: 400;
+  font-family: "PingFang SC", sans-serif;
+}
+
+.footer-hint .arrow {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.footer-source {
+  font-size: 16px;
+  color: var(--ink-muted);
+  font-family: "Georgia", serif;
+  letter-spacing: 1px;
+}
+
+/* ============ 内容页样式 ============ */
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--ink);
+  position: relative;
+}
+
+.section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ink);
+}
+
+.section-emoji {
+  font-size: 36px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+}
+
+.section-title {
+  font-size: 44px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: 4px;
+  font-family: "PingFang SC", "Noto Sans SC", sans-serif;
+}
+
+.section-count {
+  font-size: 20px;
+  color: var(--red);
+  margin-left: auto;
+  padding: 6px 16px;
+  background: rgba(196, 30, 58, 0.08);
+  border: 1px solid rgba(196, 30, 58, 0.2);
+  border-radius: 3px;
+  font-weight: 700;
+  font-family: "Georgia", serif;
+}
+
+/* 新闻列表 */
+.news-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  justify-content: flex-start;
+}
+
+.news-item {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--rule-light);
+  border-radius: 0;
+  padding: 24px 0 24px 0;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  position: relative;
+  flex: 0 0 auto;
+  max-height: none;
+}
+
+.news-item:last-child {
+  border-bottom: none;
+}
+
+.news-item::before {
+  display: none;
+}
+
+.news-index {
+  font-size: 44px;
+  font-weight: 800;
+  color: var(--red);
+  min-width: 56px;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: transparent;
+  border-radius: 0;
+  flex-shrink: 0;
+  border: none;
+  font-family: "Georgia", serif;
+  padding-top: 2px;
+}
+
+.news-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.news-title {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.45;
+  margin-bottom: 14px;
+  font-family: "PingFang SC", "Noto Sans SC", sans-serif;
+}
+
+.news-summary {
+  font-size: 28px;
+  color: var(--ink-mid);
+  line-height: 1.7;
+}
+
+.news-meta {
+  font-size: 20px;
+  color: var(--ink-muted);
+  margin-top: 10px;
+  font-weight: 400;
+  font-style: italic;
+  font-family: "Georgia", serif;
+}
+
+/* 更多条目提示 */
+.news-more {
+  text-align: center;
+  font-size: 24px;
+  color: var(--ink-muted);
+  padding: 20px 0;
+  border-top: 1px dashed var(--rule);
+  letter-spacing: 2px;
+  font-family: "PingFang SC", sans-serif;
+}
+.news-more strong {
+  color: var(--red);
+  font-size: 30px;
+  font-family: "Georgia", serif;
+}
+
+/* 综合资讯页 — 版块标签 */
+.news-cat-tag {
+  display: inline-block;
+  font-size: 18px;
+  color: var(--red);
+  background: rgba(196, 30, 58, 0.08);
+  border: 1px solid rgba(196, 30, 58, 0.2);
+  border-radius: 3px;
+  padding: 2px 10px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-family: "PingFang SC", sans-serif;
+}
+
+/* 页码 */
+.page-indicator {
+  text-align: center;
+  font-size: 22px;
+  color: var(--ink-muted);
+  margin-top: auto;
+  padding-top: 16px;
+  letter-spacing: 6px;
+  font-family: "Georgia", serif;
+  border-top: 1px solid var(--rule-light);
+}

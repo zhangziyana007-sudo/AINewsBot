@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <link rel="stylesheet" href="styles.css">
+  <title>AI Daily - {{SECTION_TITLE}}</title>
+</head>
+<body>
+  <div class="card">
+    <div class="card-inner">
+      <!-- 顶部渐变条 -->
+      <div class="top-bar"></div>
+
+      <!-- 头部 -->
+      <div class="header">
+        <div class="header-brand">
+          <div class="header-icon">⚡</div>
+          <div class="header-title">{{TEXT_TITLEBAR}}</div>
+        </div>
+        <div class="header-date">{{DATE_SHORT}} {{WEEKDAY}}</div>
+      </div>
+
+      <!-- 内容区 -->
+      <div class="content-area">
+        <!-- 板块标题 -->
+        <div class="section-header">
+          <span class="section-emoji">{{SECTION_EMOJI}}</span>
+          <span class="section-title">{{SECTION_TITLE}}</span>
+          <span class="section-count">{{SECTION_COUNT}} {{TEXT_COUNT_UNIT}}</span>
+        </div>
+
+        <!-- 新闻列表 -->
+        <div class="news-list">
+          {{NEWS_ITEMS}}
+        </div>
+
+        <!-- 页码 -->
+        <div class="page-indicator">
+          {{PAGE_NUM}} / {{TOTAL_PAGES}}
+        </div>
+      </div>
+
+      <!-- 底栏 -->
+      <div class="footer">
+        <span class="footer-left">{{SECTION_TITLE}}</span>
+        <span class="footer-right">{{TEXT_STATUS_RIGHT}}</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
