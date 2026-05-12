@@ -37,7 +37,7 @@ const PORT = parseInt(process.env.PORT || "3457", 10);
 // 允许的前端域名（Cloudflare Pages 等）
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",").map(s => s.trim())
-  : [];
+  : ["zizaya.top"];
 
 const app = express();
 
