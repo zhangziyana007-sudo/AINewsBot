@@ -3,48 +3,28 @@
  */
 
 /**
- * 将日报数据按版块分组
+ * 将日报数据合并为单一列表（不分组）
  */
 export function groupByCategory(dailyData) {
-  const categories = {
-    "ai-models": { label: "模型发布", emoji: "📊", items: [] },
-    "ai-products": { label: "产品发布", emoji: "🚀", items: [] },
-    industry: { label: "行业动态", emoji: "🌐", items: [] },
-    paper: { label: "论文研究", emoji: "📄", items: [] },
-    tip: { label: "技巧与观点", emoji: "💡", items: [] },
-  };
+  const allItems = [];
 
-  if (!dailyData) return categories;
+  if (!dailyData) return { today: { label: "今日AI资讯", emoji: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.125em"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>', items: [] } };
 
-  if (dailyData.items && Array.isArray(dailyData.items) &&
-      (!dailyData.sections || dailyData.sections.length <= 1)) {
-    const allItems = dailyData.items || (dailyData.sections?.[0]?.items) || [];
-    return {
-      today: { label: "今日AI资讯", emoji: "🤖", items: allItems },
-    };
-  }
-
-  if (!dailyData.sections) return categories;
-
-  const labelMap = {
-    "模型发布/更新": "ai-models",
-    "产品发布/更新": "ai-products",
-    行业动态: "industry",
-    论文研究: "paper",
-    技巧与观点: "tip",
-    "技巧/观点": "tip",
-  };
-
-  for (const section of dailyData.sections) {
-    const key = labelMap[section.label] || "industry";
-    if (categories[key]) {
-      categories[key].items.push(...(section.items || []));
-    } else {
-      categories.industry.items.push(...(section.items || []));
+  if (dailyData.items && Array.isArray(dailyData.items)) {
+    allItems.push(...dailyData.items);
+  } else if (dailyData.sections && Array.isArray(dailyData.sections)) {
+    for (const section of dailyData.sections) {
+      allItems.push(...(section.items || []));
     }
   }
 
-  return categories;
+  return {
+    today: {
+      label: "今日AI资讯",
+      emoji: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.125em"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>',
+      items: allItems,
+    },
+  };
 }
 
 /**

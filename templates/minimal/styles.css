@@ -12,22 +12,22 @@ html, body {
   width: 1080px;
   height: 1440px;
   overflow: hidden;
-  background: #f5f5f7;
+  background: #FAFAFA;
 }
 
 :root {
   --bg: #ffffff;
-  --bg-card: #f8f9fb;
-  --bg-page: #f5f5f7;
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-light: #dbeafe;
-  --accent: #6366f1;
-  --accent-light: #e0e7ff;
-  --text: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-  --border: #e2e8f0;
+  --bg-card: #EFF6FF;
+  --bg-page: #FAFAFA;
+  --primary: #2563EB;
+  --primary-dark: #1D4ED8;
+  --primary-light: #DBEAFE;
+  --accent: #3B82F6;
+  --accent-light: #EFF6FF;
+  --text: #0F172A;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+  --border: #E2E8F0;
   --radius: 20px;
   --radius-sm: 12px;
   --font: 'Inter', "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
@@ -294,7 +294,7 @@ html, body {
   flex-shrink: 0;
 }
 
-.section-emoji { font-size: 32px; }
+.section-emoji { font-size: 32px; display: inline-flex; align-items: center; justify-content: center; }
 .section-title { font-size: 36px; font-weight: 700; flex: 1; }
 .section-count { font-size: 24px; opacity: 0.8; }
 

@@ -1,5 +1,5 @@
 /**
- * Puppeteer 截图 — 将 HTML 模板截图为 1080×1440 PNG
+ * Puppeteer 截图 — 将 HTML 模板截图为自适应高度 PNG
  */
 
 import puppeteer from "puppeteer";
@@ -16,16 +16,24 @@ export async function screenshotHTML(htmlPath, outputPath, opts = {}) {
 
   try {
     const page = await browser.newPage();
-    await page.setViewport({ width, height, deviceScaleFactor });
+    await page.setViewport({ width, height: 4000, deviceScaleFactor });
     await page.goto(`file://${htmlPath}`, {
       waitUntil: "networkidle0",
       timeout: 15000,
     });
-    await page.screenshot({
-      path: outputPath,
-      type: "png",
-      clip: { x: 0, y: 0, width, height },
-    });
+
+    const cardElement = await page.$(".card");
+    if (cardElement) {
+      await cardElement.screenshot({ path: outputPath, type: "png" });
+    } else {
+      const actualHeight = await page.evaluate(() => document.body.scrollHeight);
+      const clipHeight = Math.max(actualHeight, height);
+      await page.screenshot({
+        path: outputPath,
+        type: "png",
+        clip: { x: 0, y: 0, width, height: clipHeight },
+      });
+    }
   } finally {
     await browser.close();
   }
@@ -48,7 +56,7 @@ export async function screenshotAll(htmlFiles, outputDir) {
       const page = await browser.newPage();
       await page.setViewport({
         width: 1080,
-        height: 1440,
+        height: 4000,
         deviceScaleFactor: 2,
       });
 
@@ -63,10 +71,12 @@ export async function screenshotAll(htmlFiles, outputDir) {
       if (cardElement) {
         await cardElement.screenshot({ path: pngPath, type: "png" });
       } else {
+        const actualHeight = await page.evaluate(() => document.body.scrollHeight);
+        const clipHeight = Math.max(actualHeight, 1440);
         await page.screenshot({
           path: pngPath,
           type: "png",
-          clip: { x: 0, y: 0, width: 1080, height: 1440 },
+          clip: { x: 0, y: 0, width: 1080, height: clipHeight },
         });
       }
 

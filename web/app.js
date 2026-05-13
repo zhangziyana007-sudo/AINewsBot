@@ -8,12 +8,10 @@
   "use strict";
 
   // ====== State ======
-  let authToken = localStorage.getItem("aibot_token") || "";
   let pollTimer = null;
 
   // ====== DOM ======
   const $ = (sel) => document.querySelector(sel);
-  const loginView = $("#login-view");
   const mainView = $("#main-view");
 
   // ====== API Helper ======
@@ -26,7 +24,6 @@
       method,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
       },
     };
     if (body) opts.body = JSON.stringify(body);
@@ -38,13 +35,7 @@
   }
 
   // ====== Auth ======
-  function showLogin() {
-    loginView.hidden = false;
-    mainView.hidden = true;
-  }
-
   function showMain() {
-    loginView.hidden = true;
     mainView.hidden = false;
     loadHistory();
     loadModels();
@@ -57,32 +48,6 @@
     const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
     $("#input-date").value = iso;
   }
-
-  // Login form
-  $("#login-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const pwd = $("#login-password").value;
-    const errEl = $("#login-error");
-    errEl.hidden = true;
-
-    try {
-      const data = await api("POST", "/api/login", { password: pwd });
-      authToken = data.token;
-      localStorage.setItem("aibot_token", authToken);
-      showMain();
-    } catch (err) {
-      errEl.textContent = err.message;
-      errEl.hidden = false;
-    }
-  });
-
-  // Logout
-  $("#btn-logout").addEventListener("click", async () => {
-    try { await api("POST", "/api/logout"); } catch {}
-    authToken = "";
-    localStorage.removeItem("aibot_token");
-    showLogin();
-  });
 
   // ====== Generate ======
   $("#btn-generate").addEventListener("click", async () => {
@@ -147,7 +112,6 @@
     } catch (err) {
       if (err.message.includes("未授权") || err.message.includes("无效")) {
         clearInterval(pollTimer);
-        showLogin();
       }
     }
   }
@@ -167,7 +131,7 @@
         .map(
           (d) => `
         <div class="history-item" data-date="${d.date}">
-          <span class="date-text">📅 ${d.date}</span>
+          <span class="date-text"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${d.date}</span>
           <span class="count-badge">${d.count} 张</span>
           <button class="btn-del-date" data-date="${d.date}" title="删除该日报">×</button>
         </div>`
@@ -193,7 +157,7 @@
             loadHistory();
             const title = $("#preview-title");
             if (title.textContent.includes(date)) {
-              $("#preview-body").innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>选择日期查看</p></div>';
+              $("#preview-body").innerHTML = '<div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><p>选择日期查看</p></div>';
               title.textContent = "图片预览";
             }
           } catch (err) {
@@ -202,9 +166,7 @@
         });
       });
     } catch (err) {
-      if (err.message.includes("未授权") || err.message.includes("无效")) {
-        showLogin();
-      }
+      console.warn("加载历史失败:", err.message);
     }
   }
 
@@ -217,7 +179,7 @@
         const result = await api("DELETE", "/api/history");
         alert(`已清空 ${result.deleted} 个日期的日报`);
         loadHistory();
-        $("#preview-body").innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无内容</p></div>';
+        $("#preview-body").innerHTML = '<div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><p>暂无内容</p></div>';
         $("#preview-title").textContent = "图片预览";
       } catch (err) {
         alert("清空失败: " + err.message);
@@ -236,7 +198,7 @@
       title.textContent = `图片预览 — ${date}`;
 
       if (data.images.length === 0) {
-        body.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>该日期没有图片</p></div>';
+        body.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><p>该日期没有图片</p></div>';
         return;
       }
 
@@ -261,18 +223,24 @@
   }
 
   // ====== 模板管理 ======
+  function getTemplatePreview(id) {
+    return `<div class="tpl-preview"><img src="previews/${id}.png" alt="${id} 预览" loading="lazy" /></div>`;
+  }
+
   async function loadTemplates() {
     try {
       const config = await api("GET", "/api/templates");
       const list = $("#template-list");
       list.innerHTML = config.themes.map(t => `
         <div class="template-item ${t.id === config.activeThemeId ? "active" : ""}" data-id="${t.id}">
-          <span class="tpl-icon">${t.preview}</span>
-          <div class="tpl-info">
-            <div class="tpl-name">${t.name}</div>
-            <div class="tpl-desc">${t.description}</div>
+          ${getTemplatePreview(t.id)}
+          <div class="tpl-footer">
+            <div class="tpl-info">
+              <div class="tpl-name">${t.name}</div>
+              <div class="tpl-desc">${t.description}</div>
+            </div>
+            <span class="tpl-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>
           </div>
-          <span class="tpl-check">✓</span>
         </div>
       `).join("");
 
@@ -674,18 +642,5 @@
   }
 
   // ====== Init ======
-  async function init() {
-    if (authToken) {
-      try {
-        await api("GET", "/api/status");
-        showMain();
-      } catch {
-        showLogin();
-      }
-    } else {
-      showLogin();
-    }
-  }
-
-  init();
+  showMain();
 })();

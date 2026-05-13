@@ -48,14 +48,17 @@ export async function getActiveModel() {
  * 构造系统提示词
  */
 function buildSystemPrompt(dateStr) {
-  return `你是一个专业的 AI 科技新闻编辑。每天全网搜索并推送当天最新的科技新闻。
+  return `你是一个专业的 AI 行业分析师，专注于追踪各大 AI 模型厂商的产品动态和定价策略。
 
 要求：
-1. 全网搜索 ${dateStr} 当天最新、影响力最大的 AI 科技新闻
-2. 偏好方向：国内外各大公司旗下 AI 大模型的更新、发布、价格变化
-3. 总共推送 10 条新闻，不需要分类
-4. 每条新闻包含：标题（简洁有力）、摘要（精简，30-80字）、来源
-5. 优先选择影响力大、传播广的新闻
+1. 全网搜索 ${dateStr} 当天或近期最新的 AI 模型相关资讯
+2. 重点关注以下三个方向：
+   - **Coding Plan / 编程订阅方案**：各厂商（OpenAI、Anthropic、Google、Cursor、GitHub Copilot、Windsurf、字节豆包、阿里通义、百度文心等）的编程/开发者订阅计划、Pro 方案、付费策略变化
+   - **模型更新发布**：新模型发布、版本升级、能力提升、基准测试成绩
+   - **Token 定价与收费**：API 调用价格调整、免费额度变化、token 单价对比、各厂商定价策略
+3. 总共推送 10 条资讯，不需要分类
+4. 每条资讯包含：标题（简洁有力）、摘要（精简，30-80字）、来源
+5. 优先选择与开发者切身相关、影响实际使用成本的资讯
 6. 标题和摘要使用中文
 
 请严格按以下 JSON 格式输出，不要添加任何其他文字：
@@ -63,7 +66,7 @@ function buildSystemPrompt(dateStr) {
   "date": "${dateStr}",
   "items": [
     {
-      "title": "新闻标题",
+      "title": "资讯标题",
       "summary": "精简摘要，30-80字",
       "source": "来源名称"
     }
@@ -93,6 +96,12 @@ async function callAI(modelConfig, systemPrompt, userPrompt) {
 
   if (["deepseek", "openai", "qwen", "gemini", "xiaomi"].includes(modelConfig.id)) {
     body.response_format = { type: "json_object" };
+  }
+
+  // 腾讯混元联网搜索增强
+  if (modelConfig.webSearch || modelConfig.id === "hunyuan") {
+    body.enable_enhancement = true;
+    body.force_search_enhancement = true;
   }
 
   if (modelConfig.model.startsWith("mimo-")) {
@@ -142,7 +151,7 @@ function parseNewsResponse(jsonStr) {
       summary: String(item.summary || "").trim(),
       source: String(item.source || "").trim(),
     })).filter((item) => item.title.length > 0);
-    data.sections = [{ label: "今日AI资讯", items: data.items }];
+    data.sections = [{ label: "AI 模型动态", items: data.items }];
   } else if (data.sections && Array.isArray(data.sections)) {
     for (const section of data.sections) {
       if (!section.label) section.label = "资讯";
@@ -170,7 +179,7 @@ export async function fetchDailyFromAI(date, modelOverride) {
   const modelConfig = modelOverride || await getActiveModel();
 
   const systemPrompt = buildSystemPrompt(dateStr);
-  const userPrompt = `请全网搜索 ${dateStr} 最新的 10 条 AI 科技新闻，重点关注各大公司 AI 大模型的更新和价格变化，按要求的 JSON 格式输出。`;
+  const userPrompt = `请全网搜索 ${dateStr} 最新的 10 条 AI 模型资讯，重点关注：1) 各厂商 Coding Plan / 编程订阅方案更新；2) 模型发布和版本升级；3) Token 定价和 API 收费变化。按要求的 JSON 格式输出。`;
 
   console.log(`   📡 正在调用 ${modelConfig.name} (模型: ${modelConfig.model})...`);
 

@@ -10,11 +10,20 @@ server/output/
 .env
 server/.env
 
-# 配置中的敏感信息（API Key 等）
+# 含有 API Key 的配置文件
 config/ai-models.json
 config/server.json
 client/config/server.json
 server/config/models.json
+
+# 备份文件
+*-backup*
+*-bak*
+*.bak
+
+# 旧版代码（已迁移到 server/ + web/）
+src/
+client/
 
 # 系统文件
 .DS_Store
@@ -28,6 +37,7 @@ Thumbs.db
 
 # 日志
 *.log
+logs/
 
-# 锁文件（可选，如需精确依赖可去掉）
-# package-lock.json
+# 预览图（由服务端动态生成）
+web/previews/

@@ -1,6 +1,0 @@
-{
-  "enabled": false,
-  "cron": "0 8 * * *",
-  "lastRun": "2026-05-12T00:00:28.337Z",
-  "lastResult": "success"
-}

@@ -3,20 +3,20 @@
  */
 
 :root {
-  --bg: #f5f5f7;
+  --bg: #FAFAFA;
   --surface: #ffffff;
-  --surface-hover: #f9f9fb;
-  --text: #1d1d1f;
-  --text-secondary: #86868b;
-  --text-muted: #aeaeb2;
-  --border: #d2d2d7;
-  --border-light: #e8e8ed;
-  --accent: #0071e3;
-  --accent-hover: #0077ed;
-  --accent-light: rgba(0, 113, 227, 0.08);
-  --danger: #ff3b30;
-  --success: #34c759;
-  --warning: #ff9f0a;
+  --surface-hover: #f8f9fb;
+  --text: #0F172A;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+  --border: #E2E8F0;
+  --border-light: #F1F5F9;
+  --accent: #D97706;
+  --accent-hover: #B45309;
+  --accent-light: rgba(217, 119, 6, 0.08);
+  --danger: #EF4444;
+  --success: #10B981;
+  --warning: #F59E0B;
   --radius: 12px;
   --radius-sm: 8px;
   --shadow: 0 2px 12px rgba(0,0,0,0.08);
@@ -89,70 +89,12 @@ html, body {
   text-align: center;
 }
 
-/* ====== Login ====== */
-#login-view,
+/* ====== Views ====== */
 #main-view {
   display: flex;
 }
-#login-view[hidden],
 #main-view[hidden] {
   display: none;
-}
-
-#login-view {
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-}
-
-.login-card {
-  width: 380px;
-  box-shadow: var(--shadow-lg);
-}
-
-.login-body {
-  padding: 40px 32px;
-  text-align: center;
-}
-
-.login-icon {
-  font-size: 56px;
-  margin-bottom: 16px;
-}
-
-.login-body h2 {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.login-subtitle {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin-bottom: 24px;
-}
-
-#login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-#login-form input {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 15px;
-  font-family: var(--font);
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-#login-form input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-light);
 }
 
 .btn-primary {
@@ -200,7 +142,11 @@ html, body {
   gap: 10px;
 }
 
-.app-icon { font-size: 24px; }
+.app-icon {
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+}
 
 .app-name {
   font-size: 16px;
@@ -513,6 +459,9 @@ html, body {
   font-size: 64px;
   margin-bottom: 8px;
   opacity: 0.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Image Gallery */
@@ -812,50 +761,72 @@ html, body {
 
 /* ====== 模板选择器 ====== */
 .template-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .template-item {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  flex-direction: column;
   border: 2px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.2s;
   background: var(--surface);
+  overflow: hidden;
+  position: relative;
 }
 
 .template-item:hover {
   border-color: var(--accent-light);
-  background: var(--surface-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .template-item.active {
   border-color: var(--accent);
-  background: rgba(0, 113, 227, 0.04);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
-.template-item .tpl-icon {
-  font-size: 24px;
+/* 预览区域 */
+.tpl-preview {
+  width: 100%;
+  height: 140px;
+  position: relative;
+  overflow: hidden;
   flex-shrink: 0;
+  background: #f1f5f9;
+}
+.tpl-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
 }
 
-.template-item .tpl-info {
+/* 信息区域 */
+.tpl-footer {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.tpl-info {
   flex: 1;
   min-width: 0;
 }
 
-.template-item .tpl-name {
+.tpl-info .tpl-name {
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
 }
 
-.template-item .tpl-desc {
+.tpl-info .tpl-desc {
   font-size: 11px;
   color: var(--text-secondary);
   white-space: nowrap;
@@ -863,11 +834,11 @@ html, body {
   text-overflow: ellipsis;
 }
 
-.template-item .tpl-check {
-  font-size: 16px;
+.tpl-check {
   color: var(--accent);
   opacity: 0;
   transition: opacity 0.2s;
+  flex-shrink: 0;
 }
 
 .template-item.active .tpl-check {

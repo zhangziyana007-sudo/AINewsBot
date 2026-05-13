@@ -18,30 +18,10 @@ const TOKEN_EXPIRY = "7d";
 const revokedTokens = new Set();
 
 /**
- * JWT 认证中间件
+ * JWT 认证中间件（已禁用 — 无需登录）
  */
 export function authRequired(req, res, next) {
-  const authHeader = req.headers.authorization;
-  const tokenFromHeader = req.headers["x-auth-token"];
-  const token = authHeader?.startsWith("Bearer ")
-    ? authHeader.slice(7)
-    : tokenFromHeader || req.query.token;
-
-  if (!token) {
-    return res.status(401).json({ error: "未授权，请先登录" });
-  }
-
-  if (revokedTokens.has(token)) {
-    return res.status(401).json({ error: "token 已失效，请重新登录" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch {
-    res.status(401).json({ error: "token 无效或已过期" });
-  }
+  next();
 }
 
 // 登录

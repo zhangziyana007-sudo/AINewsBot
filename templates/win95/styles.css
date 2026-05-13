@@ -349,7 +349,7 @@ html, body {
   flex-shrink: 0;
 }
 
-.section-emoji { font-size: 34px; }
+.section-emoji { font-size: 34px; display: inline-flex; align-items: center; justify-content: center; }
 .section-title { font-size: 38px; font-weight: 700; flex: 1; }
 .section-count { font-size: 26px; opacity: 0.8; }
 

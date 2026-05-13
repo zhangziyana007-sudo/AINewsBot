@@ -26,27 +26,6 @@
     .cover-date-left { display: flex; align-items: center; gap: 10px; font-size: 30px; }
     .cover-date-right { font-size: 22px; opacity: 0.8; font-style: italic; max-width: 55%; text-align: right; line-height: 1.4; }
 
-    /* ====== 头条区域 ====== */
-    .cover-headline {
-      background: var(--win-white);
-      border-top: 2px solid var(--win-dark); border-left: 2px solid var(--win-dark);
-      border-right: 2px solid var(--win-highlight); border-bottom: 2px solid var(--win-highlight);
-      padding: 18px 22px;
-      margin-bottom: 18px;
-    }
-    .cover-headline-tag {
-      font-family: var(--pixel-font); font-size: 24px;
-      color: var(--accent-orange); margin-bottom: 10px;
-      padding-bottom: 8px; border-bottom: 1px solid #eee;
-    }
-    .cover-headline-title {
-      font-size: 34px; font-weight: 800; line-height: 1.45;
-      color: var(--text-color); margin-bottom: 8px;
-    }
-    .cover-headline-summary {
-      font-size: 24px; color: var(--text-muted); line-height: 1.6;
-    }
-
     /* ====== 资讯列表 ====== */
     .cover-list-header {
       display: flex; align-items: center; gap: 12px;
@@ -127,15 +106,8 @@
 
         <!-- 日期横幅 -->
         <div class="cover-date-banner">
-          <span class="cover-date-left">📅 {{DATE_FULL}} {{WEEKDAY}}</span>
+          <span class="cover-date-left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> {{DATE_FULL}} {{WEEKDAY}}</span>
           <span class="cover-date-right">"{{DAILY_QUOTE}}"</span>
-        </div>
-
-        <!-- 头条 -->
-        <div class="cover-headline">
-          <div class="cover-headline-tag">{{TEXT_HEADLINE_TAG}}</div>
-          <div class="cover-headline-title">{{LEAD_TEXT}}</div>
-          <div class="cover-headline-summary">{{LEAD_SUMMARY}}</div>
         </div>
 
         <!-- 全部资讯列表 -->
@@ -157,5 +129,43 @@
       </div>
     </div>
   </div>
+  <script>
+  (function(){
+    var list = document.querySelector('.cover-news-list');
+    var items = list ? list.querySelectorAll('.cover-news-item') : [];
+    if (!items.length) return;
+    var card = document.querySelector('.card');
+    var cardH = card.offsetHeight;
+    // 测量新闻列表可用高度
+    var listTop = list.getBoundingClientRect().top - card.getBoundingClientRect().top;
+    var footer = document.querySelector('.cover-footer');
+    var statusBar = document.querySelector('.status-bar');
+    var bottomUsed = (footer ? footer.offsetHeight : 0) + (statusBar ? statusBar.offsetHeight : 0) + 28;
+    var available = cardH - listTop - bottomUsed;
+    if (available < 100) return;
+    var perItem = available / items.length;
+    // 根据每条可用高度动态设置字号和间距
+    var fontSize, padding, lineHeight;
+    if (perItem >= 60) {
+      fontSize = 28; padding = 10; lineHeight = 1.5;
+    } else if (perItem >= 45) {
+      fontSize = 25; padding = 7; lineHeight = 1.45;
+    } else if (perItem >= 36) {
+      fontSize = 22; padding = 5; lineHeight = 1.35;
+    } else {
+      fontSize = 20; padding = 3; lineHeight = 1.3;
+    }
+    for (var i = 0; i < items.length; i++) {
+      items[i].style.fontSize = fontSize + 'px';
+      items[i].style.lineHeight = lineHeight;
+      items[i].style.padding = padding + 'px 0';
+    }
+    // 调整序号字号
+    var idxs = list.querySelectorAll('.cover-news-idx');
+    for (var j = 0; j < idxs.length; j++) {
+      idxs[j].style.fontSize = (fontSize - 2) + 'px';
+    }
+  })();
+  </script>
 </body>
 </html>

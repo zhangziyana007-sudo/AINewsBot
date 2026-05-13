@@ -17,9 +17,9 @@ const DEFAULT_TEXT = {
   cover: {
     titleBar: "AI_Daily.exe",
     mainTitle: "AI 日报",
-    headlineTag: "🔥 今日头条",
+    headlineTag: "今日头条",
     listTitle: "全部资讯 · 共 {{TOTAL_COUNT}} 条",
-    bottomHint: "⏩ 左滑查看详情",
+    bottomHint: "左滑查看详情",
     statusLeft: "已就绪",
     statusRight: "Note Pad",
   },
@@ -140,9 +140,7 @@ function escapeHTML(str) {
 
 function renderNewsItem(item, index, fullSummary = false) {
   const title = item.title || "无标题";
-  const rawSummary = item.summary || "";
-  const maxLen = fullSummary ? 300 : 80;
-  const summary = rawSummary.length > maxLen ? rawSummary.slice(0, maxLen) + "..." : rawSummary;
+  const summary = item.summary || "";
   const source = item.source || "";
 
   return `
@@ -159,28 +157,16 @@ function renderNewsItem(item, index, fullSummary = false) {
 export async function renderCover(grouped, dateInfo, leadText) {
   const template = await loadTemplate("daily-cover.html");
 
-  const totalCount = Object.values(grouped).reduce(
-    (sum, cat) => sum + cat.items.length, 0
-  );
-
-  const allKeys = Object.keys(grouped);
-  const categoryOrder = allKeys.includes("today")
-    ? ["today"]
-    : ["ai-models", "ai-products", "industry", "paper", "tip"];
   const allItems = [];
-  for (const key of categoryOrder) {
-    const items = grouped[key]?.items || [];
-    for (const item of items) allItems.push(item);
+  for (const cat of Object.values(grouped)) {
+    allItems.push(...(cat.items || []));
   }
+  const totalCount = allItems.length;
 
-  const firstItem = allItems[0];
-  const autoLead = leadText || firstItem?.title || "今日 AI 圈精选资讯";
-  const leadSummary = firstItem?.summary || "";
-
-  const newsListHtml = allItems.slice(1).map((item, i) => {
-    const idx = String(i + 2).padStart(2, "0");
+  const newsListHtml = allItems.map((item, i) => {
+    const idx = String(i + 1).padStart(2, "0");
     const title = item.title || "";
-    const displayTitle = escapeHTML(title.length > 36 ? title.slice(0, 36) + "…" : title);
+    const displayTitle = escapeHTML(title);
     return `<li class="cover-news-item"><span class="cover-news-idx">[${idx}]</span><span class="cover-news-text">${displayTitle}</span></li>`;
   }).join("\n          ");
 
@@ -204,8 +190,6 @@ export async function renderCover(grouped, dateInfo, leadText) {
     DATE_MONTH: dateInfo.month,
     DATE_DAY: dateInfo.day,
     WEEKDAY: dateInfo.weekday,
-    LEAD_TEXT: escapeHTML(autoLead),
-    LEAD_SUMMARY: leadSummary ? escapeHTML(leadSummary.length > 100 ? leadSummary.slice(0, 100) + "..." : leadSummary) : "",
     NEWS_LIST_HTML: newsListHtml,
     TOTAL_COUNT: totalCount,
     DAILY_QUOTE: dailyQuote,
@@ -266,8 +250,7 @@ async function renderMixedSection(category, dateInfo, pageNum, totalPages) {
         ? `<span class="news-cat-tag">${item._categoryEmoji} ${item._categoryLabel || ""}</span>`
         : "";
       const title = item.title || "无标题";
-      const rawSummary = item.summary || "";
-      const summary = rawSummary.length > 120 ? rawSummary.slice(0, 120) + "..." : rawSummary;
+      const summary = item.summary || "";
       const source = item.source || "";
 
       return `
@@ -327,7 +310,7 @@ export async function renderAll(grouped, dateInfo, outputDir) {
       const pageItems = items.slice(i * MAX_ITEMS_PER_PAGE, (i + 1) * MAX_ITEMS_PER_PAGE);
       const pageCat = {
         label: "今日AI资讯",
-        emoji: "🤖",
+        emoji: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.125em"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>',
         items: pageItems,
         _globalOffset: i * MAX_ITEMS_PER_PAGE,
       };
@@ -372,7 +355,7 @@ export async function renderAll(grouped, dateInfo, outputDir) {
         mergedItems.push({ ...item, _categoryLabel: cat.label, _categoryEmoji: cat.emoji });
       }
     }
-    const mergedCat = { label: "综合资讯", emoji: "📋", items: mergedItems };
+    const mergedCat = { label: "综合资讯", emoji: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.125em"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>', items: mergedItems };
     const pageHTML = await renderMixedSection(mergedCat, dateInfo, fileIndex, totalPages);
     const fileName = `${String(fileIndex).padStart(2, "0")}-综合资讯.html`;
     const filePath = resolve(outputDir, fileName);
