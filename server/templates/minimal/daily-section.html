@@ -15,7 +15,7 @@
       <!-- 头部 -->
       <div class="header">
         <div class="header-brand">
-          <div class="header-icon">⚡</div>
+          <div class="header-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2 7.586 7.586a2 2 0 0 1 0 2.828L13 20"/><path d="m11 2-7.586 7.586a2 2 0 0 0 0 2.828L11 20"/></svg></div>
           <div class="header-title">{{TEXT_TITLEBAR}}</div>
         </div>
         <div class="header-date">{{DATE_SHORT}} {{WEEKDAY}}</div>
@@ -48,5 +48,30 @@
       </div>
     </div>
   </div>
-</body>
-</html>
+  <script>
+  (function(){
+    var card = document.querySelector('.card');
+    var list = document.querySelector('.news-list');
+    var items = list ? list.querySelectorAll('.news-item') : [];
+    if (!items.length) return;
+    var cardH = card.offsetHeight;
+    var contentH = card.scrollHeight;
+    if (contentH <= cardH) return;
+    var ratio = cardH / contentH;
+    for (var i = 0; i < items.length; i++) {
+      var title = items[i].querySelector('.news-title');
+      var summary = items[i].querySelector('.news-summary');
+      if (title) {
+        var s = parseFloat(getComputedStyle(title).fontSize);
+        title.style.fontSize = Math.max(s * ratio, 20) + 'px';
+      }
+      if (summary) {
+        var ss = parseFloat(getComputedStyle(summary).fontSize);
+        summary.style.fontSize = Math.max(ss * ratio, 18) + 'px';
+      }
+      var pad = parseFloat(getComputedStyle(items[i]).paddingTop);
+      items[i].style.paddingTop = Math.max(pad * ratio, 6) + 'px';
+      items[i].style.paddingBottom = Math.max(pad * ratio, 6) + 'px';
+    }
+  })();
+  </script>

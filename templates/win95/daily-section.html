@@ -66,5 +66,31 @@
       </div>
     </div>
   </div>
-</body>
-</html>
+  <script>
+  (function(){
+    var card = document.querySelector('.card');
+    var list = document.querySelector('.news-list');
+    var items = list ? list.querySelectorAll('.news-item') : [];
+    if (!items.length) return;
+    var cardH = card.offsetHeight;
+    var contentH = card.scrollHeight;
+    if (contentH <= cardH) return;
+    // 内容溢出时按比例缩小字号和间距
+    var ratio = cardH / contentH;
+    for (var i = 0; i < items.length; i++) {
+      var title = items[i].querySelector('.news-title');
+      var summary = items[i].querySelector('.news-summary');
+      if (title) {
+        var s = parseFloat(getComputedStyle(title).fontSize);
+        title.style.fontSize = Math.max(s * ratio, 20) + 'px';
+      }
+      if (summary) {
+        var ss = parseFloat(getComputedStyle(summary).fontSize);
+        summary.style.fontSize = Math.max(ss * ratio, 18) + 'px';
+      }
+      var pad = parseFloat(getComputedStyle(items[i]).paddingTop);
+      items[i].style.paddingTop = Math.max(pad * ratio, 6) + 'px';
+      items[i].style.paddingBottom = Math.max(pad * ratio, 6) + 'px';
+    }
+  })();
+  </script>

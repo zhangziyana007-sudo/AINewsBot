@@ -202,76 +202,74 @@ export async function renderCover(grouped, dateInfo, leadText) {
   return render(template, data);
 }
 
-const MAX_ITEMS_PER_PAGE = 4;
+/**
+ * 估算单条新闻在页面中的高度（像素）
+ * 根据标题和摘要的字符数推算行数，再换算高度
+ */
+function estimateItemHeight(item, fullSummary) {
+  const titleLen = (item.title || "").length;
+  const summaryLen = fullSummary ? (item.summary || "").length : 0;
+  const sourceLen = (item.source || "").length;
+
+  // 在 ~950px 文本区域内：标题约 22 字/行（粗体），摘要约 28 字/行
+  const titleLines = Math.ceil(titleLen / 22) || 1;
+  const summaryLines = fullSummary ? (Math.ceil(summaryLen / 28) || 0) : 0;
+  const sourceLine = sourceLen > 0 ? 1 : 0;
+
+  const titleH = titleLines * 56;     // ~34px * 1.65（粗体更宽）
+  const summaryH = summaryLines * 42; // ~26px * 1.6 + 余量
+  const sourceH = sourceLine * 36;
+  const padding = 60;                 // item padding + gap + border
+
+  return titleH + summaryH + sourceH + padding;
+}
+
+/** 页面固定开销高度（标题栏+板块头+页码+状态栏+间距） */
+const PAGE_OVERHEAD = 380;
+const PAGE_HEIGHT = 1440;
+const AVAILABLE_HEIGHT = PAGE_HEIGHT - PAGE_OVERHEAD;
+
+/**
+ * 将新闻列表按估算高度分页
+ * 返回二维数组：[[page1Items], [page2Items], ...]
+ */
+function paginateItems(items) {
+  const pages = [];
+  let currentPage = [];
+  let usedHeight = 0;
+
+  for (const item of items) {
+    // 每页 ≤2 条时展示完整摘要
+    const willBeFullSummary = currentPage.length < 2;
+    const h = estimateItemHeight(item, willBeFullSummary);
+
+    if (currentPage.length > 0 && usedHeight + h > AVAILABLE_HEIGHT) {
+      pages.push(currentPage);
+      currentPage = [];
+      usedHeight = 0;
+    }
+
+    currentPage.push(item);
+    // 重新按当前页数量判断是否 fullSummary
+    const actualFull = currentPage.length <= 2;
+    usedHeight += estimateItemHeight(item, actualFull);
+  }
+
+  if (currentPage.length > 0) {
+    pages.push(currentPage);
+  }
+
+  return pages;
+}
 
 export async function renderSection(category, dateInfo, pageNum, totalPages) {
   const template = await loadTemplate("daily-section.html");
 
-  const showItems = category.items.slice(0, MAX_ITEMS_PER_PAGE);
-  const remaining = category.items.length - showItems.length;
+  const showItems = category.items;
   const fullSummary = showItems.length <= 2;
   const globalOffset = category._globalOffset || 0;
 
   let newsHTML = showItems.map((item, idx) => renderNewsItem(item, globalOffset + idx, fullSummary)).join("\n");
-
-  if (remaining > 0) {
-    newsHTML += `
-      <div class="news-more">
-        还有 <strong>${remaining}</strong> 条资讯未展示，关注获取完整日报
-      </div>`;
-  }
-
-  const data = {
-    DATE_SHORT: dateInfo.short,
-    WEEKDAY: dateInfo.weekday,
-    SECTION_EMOJI: category.emoji,
-    SECTION_TITLE: category.label,
-    SECTION_COUNT: category.items.length,
-    NEWS_ITEMS: newsHTML,
-    PAGE_NUM: pageNum,
-    TOTAL_PAGES: totalPages,
-  };
-
-  const themeId = await getActiveThemeId();
-  const text = await loadTemplateText(themeId);
-  injectTextVars(data, text, "section");
-
-  return render(template, data);
-}
-
-async function renderMixedSection(category, dateInfo, pageNum, totalPages) {
-  const template = await loadTemplate("daily-section.html");
-  const showItems = category.items.slice(0, MAX_ITEMS_PER_PAGE);
-  const remaining = category.items.length - showItems.length;
-
-  let newsHTML = showItems
-    .map((item, idx) => {
-      const catTag = item._categoryEmoji
-        ? `<span class="news-cat-tag">${item._categoryEmoji} ${item._categoryLabel || ""}</span>`
-        : "";
-      const title = item.title || "无标题";
-      const summary = item.summary || "";
-      const source = item.source || "";
-
-      return `
-      <div class="news-item">
-        <div class="news-index">${idx + 1}</div>
-        <div class="news-content">
-          ${catTag}
-          <div class="news-title">${escapeHTML(title)}</div>
-          ${summary ? `<div class="news-summary">${escapeHTML(summary)}</div>` : ""}
-          ${source ? `<div class="news-meta">${escapeHTML(source)}</div>` : ""}
-        </div>
-      </div>`;
-    })
-    .join("\n");
-
-  if (remaining > 0) {
-    newsHTML += `
-      <div class="news-more">
-        还有 <strong>${remaining}</strong> 条资讯未展示，关注获取完整日报
-      </div>`;
-  }
 
   const data = {
     DATE_SHORT: dateInfo.short,
@@ -298,22 +296,24 @@ export async function renderAll(grouped, dateInfo, outputDir) {
 
   if (grouped.today) {
     const items = grouped.today.items;
-    const pageCount = Math.ceil(items.length / MAX_ITEMS_PER_PAGE);
-    const totalPages = 1 + pageCount;
+    const pages = paginateItems(items);
+    const totalPages = 1 + pages.length;
 
     const coverHTML = await renderCover(grouped, dateInfo);
     const coverPath = resolve(outputDir, "01-cover.html");
     await writeFile(coverPath, coverHTML, "utf-8");
     htmlFiles.push(coverPath);
 
-    for (let i = 0; i < pageCount; i++) {
-      const pageItems = items.slice(i * MAX_ITEMS_PER_PAGE, (i + 1) * MAX_ITEMS_PER_PAGE);
+    let globalOffset = 0;
+    for (let i = 0; i < pages.length; i++) {
+      const pageItems = pages[i];
       const pageCat = {
         label: "今日AI资讯",
         emoji: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.125em"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>',
         items: pageItems,
-        _globalOffset: i * MAX_ITEMS_PER_PAGE,
+        _globalOffset: globalOffset,
       };
+      globalOffset += pageItems.length;
       const fileIndex = i + 2;
       const pageHTML = await renderSection(pageCat, dateInfo, fileIndex, totalPages);
       const fileName = `${String(fileIndex).padStart(2, "0")}-今日AI资讯-${i + 1}.html`;
@@ -323,54 +323,6 @@ export async function renderAll(grouped, dateInfo, outputDir) {
     }
 
     return htmlFiles;
-  }
-
-  const categoryOrder = ["ai-models", "ai-products", "industry", "paper", "tip"];
-  const standalone = [];
-  const mergeable = [];
-  for (const key of categoryOrder) {
-    const cat = grouped[key];
-    if (!cat || cat.items.length === 0) continue;
-    if (cat.items.length >= 3) {
-      standalone.push(cat);
-    } else {
-      mergeable.push(cat);
-    }
-  }
-
-  const hasMerged = mergeable.length > 0;
-  const totalPages = 1 + standalone.length + (hasMerged ? 1 : 0);
-
-  const coverHTML = await renderCover(grouped, dateInfo);
-  const coverPath = resolve(outputDir, "01-cover.html");
-  await writeFile(coverPath, coverHTML, "utf-8");
-  htmlFiles.push(coverPath);
-
-  let fileIndex = 2;
-
-  if (hasMerged) {
-    const mergedItems = [];
-    for (const cat of mergeable) {
-      for (const item of cat.items) {
-        mergedItems.push({ ...item, _categoryLabel: cat.label, _categoryEmoji: cat.emoji });
-      }
-    }
-    const mergedCat = { label: "综合资讯", emoji: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.125em"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>', items: mergedItems };
-    const pageHTML = await renderMixedSection(mergedCat, dateInfo, fileIndex, totalPages);
-    const fileName = `${String(fileIndex).padStart(2, "0")}-综合资讯.html`;
-    const filePath = resolve(outputDir, fileName);
-    await writeFile(filePath, pageHTML, "utf-8");
-    htmlFiles.push(filePath);
-    fileIndex++;
-  }
-
-  for (const cat of standalone) {
-    const pageHTML = await renderSection(cat, dateInfo, fileIndex, totalPages);
-    const fileName = `${String(fileIndex).padStart(2, "0")}-${cat.label}.html`;
-    const filePath = resolve(outputDir, fileName);
-    await writeFile(filePath, pageHTML, "utf-8");
-    htmlFiles.push(filePath);
-    fileIndex++;
   }
 
   return htmlFiles;
