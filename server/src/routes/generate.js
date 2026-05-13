@@ -11,12 +11,11 @@ import { fileURLToPath } from "node:url";
 import { rm, mkdir } from "node:fs/promises";
 
 import { authRequired } from "./auth.js";
-import { fetchDailyFromAI, summarizeRSSArticles } from "../services/ai.js";
+import { fetchDailyFromAI, summarizeRSSArticles, generateCoverSummary } from "../services/ai.js";
 import { fetchAllRSS } from "../services/rss.js";
 import { fetchForDailyReport } from "../services/aihot.js";
 import { getCache, setCache } from "../services/cache.js";
 import { groupByCategory, formatDateCN } from "../services/daily.js";
-import { renderAll } from "../services/render.js";
 import { screenshotAll } from "../services/screenshot.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -87,12 +86,28 @@ async function runGenerate(dateArg, forceRefresh) {
       return;
     }
 
-    // Step 2: 渲染 HTML
-    generateProgress = { step: 2, total: 3, message: `获取 ${totalItems} 条新闻，正在渲染模板...`, done: false, error: null };
+    // Step 2: AI 生成封面导语 + 渲染 HTML
+    generateProgress = { step: 2, total: 3, message: `获取 ${totalItems} 条新闻，AI 生成封面导语...`, done: false, error: null };
+
+    let coverLead = "";
+    try {
+      const allItems = Object.values(grouped).flatMap(c => c.items || []);
+      coverLead = await generateCoverSummary(allItems, dateInfo.iso);
+    } catch (err) {
+      console.log(`   ⚠️ AI 导语生成失败，使用默认: ${err.message}`);
+    }
+
     const outputDir = resolve(OUTPUT_DIR, dateInfo.iso);
     await rm(outputDir, { recursive: true, force: true });
     await mkdir(outputDir, { recursive: true });
-    const htmlFiles = await renderAll(grouped, dateInfo, outputDir);
+
+    // 只生成封面（不生成内容页）
+    const { renderCover } = await import("../services/render.js");
+    const coverHTML = await renderCover(grouped, dateInfo, coverLead);
+    const coverPath = resolve(outputDir, "01-cover.html");
+    const { writeFile: writeF } = await import("node:fs/promises");
+    await writeF(coverPath, coverHTML, "utf-8");
+    const htmlFiles = [coverPath];
 
     // Step 3: 截图
     generateProgress = { step: 3, total: 3, message: "正在生成 PNG 图片...", done: false, error: null };

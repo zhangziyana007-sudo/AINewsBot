@@ -19,7 +19,7 @@ const DEFAULT_TEXT = {
     mainTitle: "AI 日报",
     headlineTag: "今日头条",
     listTitle: "全部资讯 · 共 {{TOTAL_COUNT}} 条",
-    bottomHint: "左滑查看详情",
+    bottomHint: "",
     statusLeft: "已就绪",
     statusRight: "Note Pad",
   },
@@ -170,19 +170,25 @@ export async function renderCover(grouped, dateInfo, leadText) {
     return `<li class="cover-news-item"><span class="cover-news-idx">[${idx}]</span><span class="cover-news-text">${displayTitle}</span></li>`;
   }).join("\n          ");
 
-  const quotes = [
-    "技术是中性的，而人决定了它的方向。",
-    "AI不会取代你，但会用AI的人会。",
-    "未来已来，只是分布不均。",
-    "数据是新时代的石油，AI是炼油厂。",
-    "最好的预测未来的方式，就是去创造它。",
-    "机器学习的核心是：让数据说话。",
-    "通往AGI之路，每一步都值得记录。",
-  ];
-  const dayOfYear = Math.floor(
-    (new Date(dateInfo.iso) - new Date(dateInfo.year, 0, 0)) / 86400000
-  );
-  const dailyQuote = quotes[dayOfYear % quotes.length];
+  let dailyQuote;
+  if (leadText) {
+    // 使用 AI 生成的封面导语
+    dailyQuote = leadText;
+  } else {
+    const quotes = [
+      "技术是中性的，而人决定了它的方向。",
+      "AI不会取代你，但会用AI的人会。",
+      "未来已来，只是分布不均。",
+      "数据是新时代的石油，AI是炼油厂。",
+      "最好的预测未来的方式，就是去创造它。",
+      "机器学习的核心是：让数据说话。",
+      "通往AGI之路，每一步都值得记录。",
+    ];
+    const dayOfYear = Math.floor(
+      (new Date(dateInfo.iso) - new Date(dateInfo.year, 0, 0)) / 86400000
+    );
+    dailyQuote = quotes[dayOfYear % quotes.length];
+  }
 
   const data = {
     DATE_FULL: dateInfo.full,

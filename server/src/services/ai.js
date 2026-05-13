@@ -77,7 +77,7 @@ function buildSystemPrompt(dateStr) {
 /**
  * 调用 OpenAI 兼容 API
  */
-async function callAI(modelConfig, systemPrompt, userPrompt) {
+async function callAI(modelConfig, systemPrompt, userPrompt, { jsonMode = true } = {}) {
   if (!modelConfig.apiKey) {
     throw new Error(`缺少 ${modelConfig.name} 的 API Key`);
   }
@@ -94,7 +94,7 @@ async function callAI(modelConfig, systemPrompt, userPrompt) {
     max_tokens: 4096,
   };
 
-  if (["deepseek", "openai", "qwen", "gemini", "xiaomi"].includes(modelConfig.id)) {
+  if (jsonMode && ["deepseek", "openai", "qwen", "gemini", "xiaomi"].includes(modelConfig.id)) {
     body.response_format = { type: "json_object" };
   }
 
@@ -248,4 +248,33 @@ export async function summarizeRSSArticles(articles, date, modelOverride) {
   console.log(`   ✅ AI 摘要完成: ${totalItems} 条精选资讯`);
 
   return data;
+}
+
+/**
+ * AI 总结封面文案：将新闻列表浓缩为一段封面导语
+ */
+export async function generateCoverSummary(items, dateStr) {
+  const model = await getActiveModel();
+
+  const newsList = items.map((item, i) =>
+    `${i + 1}. ${item.title}${item.summary ? " — " + item.summary : ""}`
+  ).join("\n");
+
+  const systemPrompt = `你是一位资深科技媒体编辑，擅长用简洁有力的中文写日报导语。`;
+
+  const userPrompt = `以下是 ${dateStr} 的 ${items.length} 条 AI 行业精选资讯：
+
+${newsList}
+
+请根据这些资讯，写一段 60-100 字的日报封面导语。要求：
+1. 提炼今天最重要的 2-3 个趋势或事件
+2. 语气专业但不枯燥，适合社交媒体传播
+3. 不要用"今天"开头，不要用emoji
+4. 直接输出导语文字，不要加引号或其他格式`;
+
+  console.log(`   📝 AI 生成封面导语...`);
+  const raw = await callAI(model, systemPrompt, userPrompt, { jsonMode: false });
+  const summary = raw.trim().replace(/^[\s"'""\u201c\u201d]+|[\s"'""\u201c\u201d]+$/g, "");
+  console.log(`   ✅ 封面导语: ${summary.slice(0, 50)}...`);
+  return summary;
 }
