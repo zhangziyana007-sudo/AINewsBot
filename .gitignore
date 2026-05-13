@@ -22,8 +22,8 @@ server/config/models.json
 *.bak
 
 # 旧版代码（已迁移到 server/ + web/）
-src/
-client/
+/src/
+/client/
 
 # 系统文件
 .DS_Store

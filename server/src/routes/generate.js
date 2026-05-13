@@ -11,7 +11,9 @@ import { fileURLToPath } from "node:url";
 import { rm, mkdir } from "node:fs/promises";
 
 import { authRequired } from "./auth.js";
-import { fetchDailyFromAI } from "../services/ai.js";
+import { fetchDailyFromAI, summarizeRSSArticles } from "../services/ai.js";
+import { fetchAllRSS } from "../services/rss.js";
+import { fetchForDailyReport } from "../services/aihot.js";
 import { getCache, setCache } from "../services/cache.js";
 import { groupByCategory, formatDateCN } from "../services/daily.js";
 import { renderAll } from "../services/render.js";
@@ -58,8 +60,20 @@ async function runGenerate(dateArg, forceRefresh) {
     }
 
     if (!dailyData) {
-      const result = await fetchDailyFromAI(dateStr);
-      dailyData = result;
+      // 默认使用 aihot API
+      console.log(`\n🚀 新闻获取流程启动 (${dateStr})`);
+      try {
+        dailyData = await fetchForDailyReport(dateStr);
+      } catch (err) {
+        console.log(`   ⚠️ aihot 失败，降级为 RSS+AI: ${err.message}`);
+        const { articles } = await fetchAllRSS();
+        if (articles.length > 0) {
+          dailyData = await summarizeRSSArticles(articles, dateStr);
+        } else {
+          console.log("   ⚠️ RSS 也无数据，降级为 AI 联网搜索");
+          dailyData = await fetchDailyFromAI(dateStr);
+        }
+      }
       setCache(dateStr, dailyData);
     }
 

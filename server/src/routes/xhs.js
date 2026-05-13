@@ -1,0 +1,139 @@
+/**
+ * 小红书发布路由
+ *
+ * POST /api/xhs/login        — 启动扫码登录，返回二维码截图
+ * GET  /api/xhs/login/status  — 检查登录状态
+ * POST /api/xhs/publish       — 发布/保存草稿
+ * GET  /api/xhs/status        — 获取登录状态
+ */
+
+import { Router } from "express";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { authRequired } from "./auth.js";
+import {
+  startLogin,
+  checkLoginStatus,
+  publishToXHS,
+  generateXHSCaption,
+  getCookieStatus,
+  closeBrowser,
+} from "../services/xhs.js";
+import { getCache } from "../services/cache.js";
+import { formatDateCN } from "../services/daily.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const OUTPUT_DIR = resolve(__dirname, "../../output");
+
+const router = Router();
+
+// 启动登录（返回二维码截图）
+router.post("/login", authRequired, async (req, res) => {
+  try {
+    const result = await startLogin();
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error(`   ❌ 小红书登录启动失败: ${err.message}`);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 检查登录状态
+router.get("/login/status", authRequired, async (req, res) => {
+  try {
+    const result = await checkLoginStatus();
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 获取 Cookie 状态
+router.get("/status", authRequired, async (req, res) => {
+  try {
+    const status = await getCookieStatus();
+    res.json({ ok: true, ...status });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 发布到小红书
+router.post("/publish", authRequired, async (req, res) => {
+  try {
+    const { date, draft = true, customTitle, customContent, customTags } = req.body;
+
+    const now = new Date();
+    const dateStr = date || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+    // 获取日报图片路径
+    const { readdirSync } = await import("node:fs");
+    const outputDir = resolve(OUTPUT_DIR, dateStr);
+
+    let pngFiles;
+    try {
+      pngFiles = readdirSync(outputDir)
+        .filter((f) => f.endsWith(".png"))
+        .sort()
+        .map((f) => resolve(outputDir, f));
+    } catch {
+      return res.status(400).json({ error: `未找到 ${dateStr} 的日报图片，请先生成日报` });
+    }
+
+    if (pngFiles.length === 0) {
+      return res.status(400).json({ error: "日报图片为空" });
+    }
+
+    // 小红书限制每篇最多 18 张图片
+    if (pngFiles.length > 18) {
+      pngFiles.length = 18;
+    }
+
+    // 生成文案
+    const dateInfo = formatDateCN(dateStr);
+    const cached = getCache(dateStr);
+    const items = cached?.items || cached?.sections?.[0]?.items || [];
+
+    let title, content, tags;
+    if (customTitle) {
+      title = customTitle;
+      content = customContent || "";
+      tags = customTags || ["AI日报", "人工智能"];
+    } else {
+      const caption = generateXHSCaption(items, dateInfo);
+      title = caption.title;
+      content = caption.content;
+      tags = caption.tags;
+    }
+
+    console.log(`\n📱 小红书发布 (${dateStr})`);
+    console.log(`   标题: ${title}`);
+    console.log(`   图片: ${pngFiles.length} 张`);
+    console.log(`   模式: ${draft ? "草稿" : "发布"}`);
+
+    const result = await publishToXHS({
+      imagePaths: pngFiles,
+      title,
+      content,
+      tags,
+      draft,
+    });
+
+    res.json({ ok: true, ...result, title, imageCount: pngFiles.length });
+  } catch (err) {
+    console.error(`   ❌ 小红书发布失败: ${err.message}`);
+    res.status(500).json({
+      error: err.message,
+      screenshot: err.screenshot || null,
+    });
+  }
+});
+
+// 关闭浏览器（清理资源）
+router.post("/close", authRequired, async (req, res) => {
+  await closeBrowser();
+  res.json({ ok: true, message: "浏览器已关闭" });
+});
+
+export default router;

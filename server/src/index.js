@@ -27,6 +27,7 @@ import generateRouter, { runGenerate } from "./routes/generate.js";
 import templatesRouter from "./routes/templates.js";
 import scheduleRouter from "./routes/schedule.js";
 import historyRouter from "./routes/history.js";
+import xhsRouter from "./routes/xhs.js";
 import { startScheduler } from "./services/scheduler.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -70,6 +71,7 @@ app.use("/api", generateRouter);
 app.use("/api/templates", templatesRouter);
 app.use("/api/schedule", scheduleRouter);
 app.use("/api/history", historyRouter);
+app.use("/api/xhs", xhsRouter);
 
 // 健康检查
 app.get("/api/health", (req, res) => {

@@ -641,6 +641,116 @@
     schedulePreset.addEventListener("change", saveSchedule);
   }
 
+  // ====== 小红书发布 ======
+  const xhsStatus = $("#xhs-status");
+  const xhsInfo = $("#xhs-info");
+  const btnXhsLogin = $("#btn-xhs-login");
+  const btnXhsDraft = $("#btn-xhs-draft");
+  const xhsModal = $("#xhs-modal");
+  const xhsModalClose = $("#xhs-modal-close");
+  const xhsQrImg = $("#xhs-qr-img");
+  const xhsLoginMsg = $("#xhs-login-msg");
+  const btnXhsCheck = $("#btn-xhs-check");
+
+  // 检查小红书登录状态
+  async function checkXHSStatus() {
+    try {
+      const data = await api("GET", "/api/xhs/status");
+      if (data.hasLogin) {
+        xhsStatus.style.color = "#22c55e";
+        xhsInfo.textContent = `已登录 · 过期: ${data.expires || "未知"}`;
+        btnXhsDraft.disabled = false;
+      } else {
+        xhsStatus.style.color = "#ef4444";
+        xhsInfo.textContent = data.message || "未登录";
+        btnXhsDraft.disabled = true;
+      }
+    } catch {
+      xhsStatus.style.color = "#94a3b8";
+      xhsInfo.textContent = "无法检查状态";
+    }
+  }
+
+  // 启动扫码登录
+  if (btnXhsLogin) {
+    btnXhsLogin.addEventListener("click", async () => {
+      xhsModal.hidden = false;
+      xhsLoginMsg.textContent = "正在加载登录页面...";
+      xhsQrImg.src = "";
+      try {
+        const data = await api("POST", "/api/xhs/login");
+        xhsLoginMsg.textContent = data.message || "请使用小红书 App 扫描二维码";
+        if (data.qrCode) {
+          xhsQrImg.src = data.qrCode;
+        }
+      } catch (err) {
+        xhsLoginMsg.textContent = "加载失败: " + err.message;
+      }
+    });
+  }
+
+  // 检查登录状态
+  if (btnXhsCheck) {
+    btnXhsCheck.addEventListener("click", async () => {
+      try {
+        btnXhsCheck.textContent = "检查中...";
+        const data = await api("GET", "/api/xhs/login/status");
+        if (data.loggedIn) {
+          xhsLoginMsg.textContent = "登录成功！";
+          xhsQrImg.src = data.screenshot || "";
+          setTimeout(() => {
+            xhsModal.hidden = true;
+            checkXHSStatus();
+          }, 1500);
+        } else {
+          xhsLoginMsg.textContent = data.message || "等待扫码...";
+          if (data.qrCode) {
+            xhsQrImg.src = data.qrCode;
+          }
+        }
+      } catch (err) {
+        xhsLoginMsg.textContent = "检查失败: " + err.message;
+      } finally {
+        btnXhsCheck.textContent = "检查登录状态";
+      }
+    });
+  }
+
+  // 关闭弹窗
+  if (xhsModalClose) {
+    xhsModalClose.addEventListener("click", () => {
+      xhsModal.hidden = true;
+    });
+  }
+
+  // 存草稿
+  if (btnXhsDraft) {
+    btnXhsDraft.addEventListener("click", async () => {
+      const date = $("#input-date").value;
+      if (!date) return alert("请先选择日期");
+
+      btnXhsDraft.disabled = true;
+      btnXhsDraft.textContent = "发布中...";
+      try {
+        const data = await api("POST", "/api/xhs/publish", { date, draft: true });
+        alert(data.message || "已保存到草稿箱");
+        if (data.preview) {
+          xhsQrImg.src = data.preview;
+          xhsLoginMsg.textContent = "发布预览";
+          xhsModal.hidden = false;
+        }
+      } catch (err) {
+        alert("发布失败: " + err.message);
+      } finally {
+        btnXhsDraft.disabled = false;
+        btnXhsDraft.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg> 存草稿';
+      }
+    });
+  }
+
+  // 初始加载时检查小红书状态
+  checkXHSStatus();
+
   // ====== Init ======
   showMain();
 })();

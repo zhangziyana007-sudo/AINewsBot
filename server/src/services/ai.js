@@ -170,7 +170,7 @@ function parseNewsResponse(jsonStr) {
 }
 
 /**
- * 使用 AI 大模型获取新闻日报
+ * 使用 AI 大模型获取新闻日报（联网搜索模式，旧方案备用）
  */
 export async function fetchDailyFromAI(date, modelOverride) {
   const now = new Date();
@@ -190,6 +190,62 @@ export async function fetchDailyFromAI(date, modelOverride) {
 
   const totalItems = data.sections.reduce((sum, s) => sum + s.items.length, 0);
   console.log(`   ✅ ${modelConfig.name} 返回 ${totalItems} 条新闻`);
+
+  return data;
+}
+
+/**
+ * 构造 RSS 摘要提示词
+ */
+function buildSummarizePrompt(dateStr) {
+  return `你是一位专业的 AI 行业编辑。你的任务是从给定的 RSS 新闻原文中筛选和总结最有价值的资讯。
+
+要求：
+1. 从提供的原始文章中精选最重要的 10-15 条
+2. 优先级：重大产品发布 > 模型更新 > 定价变化 > 行业分析 > 学术论文
+3. 为每条资讯撰写简洁有力的中文标题（即使原文是英文）
+4. 摘要控制在 30-80 字，抓住核心信息
+5. 去除广告、水文、重复资讯
+6. 保留原始来源名称
+
+请严格按以下 JSON 格式输出，不要添加任何其他文字：
+{
+  "date": "${dateStr}",
+  "items": [
+    {
+      "title": "中文资讯标题",
+      "summary": "精简摘要，30-80字",
+      "source": "来源名称"
+    }
+  ]
+}`;
+}
+
+/**
+ * 使用 AI 对 RSS 原文做筛选和摘要（新方案）
+ */
+export async function summarizeRSSArticles(articles, date, modelOverride) {
+  const now = new Date();
+  const dateStr = date || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+  const modelConfig = modelOverride || await getActiveModel();
+  const systemPrompt = buildSummarizePrompt(dateStr);
+
+  // 将文章格式化为 AI 可读文本
+  const { formatArticlesForAI } = await import("./rss.js");
+  const articlesText = formatArticlesForAI(articles);
+
+  const userPrompt = `以下是今天从各 RSS 源获取的 ${articles.length} 篇原始文章，请筛选最重要的 10-15 条并生成中文摘要：\n\n${articlesText}`;
+
+  console.log(`   📡 正在调用 ${modelConfig.name} 做摘要 (${articles.length} 篇原文)...`);
+
+  const rawContent = await callAI(modelConfig, systemPrompt, userPrompt);
+  const data = parseNewsResponse(rawContent);
+
+  data.date = data.date || dateStr;
+
+  const totalItems = data.items ? data.items.length : data.sections.reduce((sum, s) => sum + s.items.length, 0);
+  console.log(`   ✅ AI 摘要完成: ${totalItems} 条精选资讯`);
 
   return data;
 }

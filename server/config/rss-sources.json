@@ -1,0 +1,146 @@
+{
+  "sources": [
+    {
+      "id": "openai",
+      "name": "OpenAI Blog",
+      "url": "https://openai.com/blog/rss.xml",
+      "lang": "en",
+      "category": "官方博客",
+      "enabled": true
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic Blog",
+      "url": "https://www.anthropic.com/rss.xml",
+      "lang": "en",
+      "category": "官方博客",
+      "enabled": true
+    },
+    {
+      "id": "google-ai",
+      "name": "Google AI Blog",
+      "url": "https://blog.google/technology/ai/rss/",
+      "lang": "en",
+      "category": "官方博客",
+      "enabled": true
+    },
+    {
+      "id": "deepmind",
+      "name": "Google DeepMind",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "lang": "en",
+      "category": "官方博客",
+      "enabled": true
+    },
+    {
+      "id": "huggingface",
+      "name": "Hugging Face Blog",
+      "url": "https://huggingface.co/blog/feed.xml",
+      "lang": "en",
+      "category": "官方博客",
+      "enabled": true
+    },
+    {
+      "id": "microsoft-ai",
+      "name": "Microsoft AI Blog",
+      "url": "https://blogs.microsoft.com/ai/feed/",
+      "lang": "en",
+      "category": "官方博客",
+      "enabled": true
+    },
+    {
+      "id": "nvidia-ai",
+      "name": "NVIDIA AI Blog",
+      "url": "https://blogs.nvidia.com/feed/",
+      "lang": "en",
+      "category": "官方博客",
+      "enabled": true
+    },
+    {
+      "id": "jiqizhixin",
+      "name": "机器之心",
+      "url": "https://www.jiqizhixin.com/rss",
+      "lang": "zh",
+      "category": "AI媒体",
+      "enabled": true
+    },
+    {
+      "id": "techcrunch-ai",
+      "name": "TechCrunch AI",
+      "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+      "lang": "en",
+      "category": "科技媒体",
+      "enabled": true
+    },
+    {
+      "id": "theverge-ai",
+      "name": "The Verge AI",
+      "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+      "lang": "en",
+      "category": "科技媒体",
+      "enabled": true
+    },
+    {
+      "id": "venturebeat-ai",
+      "name": "VentureBeat AI",
+      "url": "https://venturebeat.com/category/ai/feed/",
+      "lang": "en",
+      "category": "科技媒体",
+      "enabled": true
+    },
+    {
+      "id": "arstechnica-ai",
+      "name": "Ars Technica AI",
+      "url": "https://arstechnica.com/ai/feed/",
+      "lang": "en",
+      "category": "科技媒体",
+      "enabled": true
+    },
+    {
+      "id": "mit-tech-review",
+      "name": "MIT Tech Review",
+      "url": "https://www.technologyreview.com/feed/",
+      "lang": "en",
+      "category": "科技媒体",
+      "enabled": true
+    },
+    {
+      "id": "hackernews",
+      "name": "Hacker News",
+      "url": "https://news.ycombinator.com/rss",
+      "lang": "en",
+      "category": "开发者社区",
+      "enabled": true
+    },
+    {
+      "id": "arxiv-cs-ai",
+      "name": "ArXiv CS.AI",
+      "url": "https://export.arxiv.org/rss/cs.AI",
+      "lang": "en",
+      "category": "学术论文",
+      "enabled": true
+    },
+    {
+      "id": "unite-ai",
+      "name": "Unite.AI",
+      "url": "https://www.unite.ai/feed/",
+      "lang": "en",
+      "category": "AI媒体",
+      "enabled": true
+    },
+    {
+      "id": "marktechpost",
+      "name": "MarkTechPost",
+      "url": "https://www.marktechpost.com/feed/",
+      "lang": "en",
+      "category": "AI媒体",
+      "enabled": true
+    }
+  ],
+  "settings": {
+    "maxArticlesPerSource": 10,
+    "maxTotalArticles": 50,
+    "fetchTimeoutMs": 15000,
+    "maxAgeDays": 2
+  }
+}
