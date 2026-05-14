@@ -29,6 +29,9 @@ import scheduleRouter from "./routes/schedule.js";
 import historyRouter from "./routes/history.js";
 import xhsRouter from "./routes/xhs.js";
 import { startScheduler } from "./services/scheduler.js";
+import { publishToXHS, checkLoginViaAPI, generateXHSCaption } from "./services/xhs.js";
+import { getCache } from "./services/cache.js";
+import { formatDateCN } from "./services/daily.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_DIR = resolve(__dirname, "../output");
@@ -87,7 +90,57 @@ app.listen(PORT, async () => {
   console.log(`${"─".repeat(40)}`);
 
   // 启动定时任务
-  await startScheduler(runGenerate);
+  await startScheduler(runGenerate, saveDraftToXHS);
 
   console.log(`\n按 Ctrl+C 停止服务\n`);
 });
+
+/**
+ * 定时草稿回调：将今天生成的日报图片自动保存到小红书草稿箱
+ */
+async function saveDraftToXHS() {
+  const { readdirSync } = await import("node:fs");
+
+  // 检查 XHS 登录状态
+  const loginCheck = await checkLoginViaAPI();
+  if (!loginCheck.loggedIn) {
+    throw new Error("未登录小红书，无法存草稿");
+  }
+
+  // 获取今天的日期和图片
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const outputDir = resolve(OUTPUT_DIR, dateStr);
+
+  let pngFiles;
+  try {
+    pngFiles = readdirSync(outputDir)
+      .filter((f) => f.endsWith(".png"))
+      .sort()
+      .map((f) => resolve(outputDir, f));
+  } catch {
+    throw new Error(`未找到 ${dateStr} 的日报图片`);
+  }
+
+  if (pngFiles.length === 0) {
+    throw new Error("日报图片为空");
+  }
+  if (pngFiles.length > 18) pngFiles.length = 18;
+
+  // 生成文案
+  const dateInfo = formatDateCN(dateStr);
+  const cached = getCache(dateStr);
+  const items = cached?.items || cached?.sections?.[0]?.items || [];
+  const caption = generateXHSCaption(items, dateInfo);
+
+  const result = await publishToXHS({
+    imagePaths: pngFiles,
+    title: caption.title,
+    content: caption.content,
+    tags: caption.tags,
+    draft: true,
+  });
+
+  console.log(`   📱 XHS草稿: ${caption.title} (${pngFiles.length}张图)`);
+  return result;
+}

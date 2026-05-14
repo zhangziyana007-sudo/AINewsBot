@@ -23,9 +23,10 @@ router.get("/", authRequired, async (req, res) => {
 router.put("/", authRequired, async (req, res) => {
   try {
     const config = await loadScheduleConfig();
-    const { enabled, cron: cronExpr } = req.body;
+    const { enabled, cron: cronExpr, autoSaveDraft } = req.body;
     if (enabled !== undefined) config.enabled = !!enabled;
     if (cronExpr !== undefined) config.cron = String(cronExpr);
+    if (autoSaveDraft !== undefined) config.autoSaveDraft = !!autoSaveDraft;
     await saveScheduleConfig(config);
     await reloadScheduler();
     res.json({ ok: true });

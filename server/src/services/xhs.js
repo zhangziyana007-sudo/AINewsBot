@@ -94,7 +94,7 @@ async function getPage() {
 /**
  * 通过 API 验证登录状态（比 DOM 检测更可靠）
  */
-async function checkLoginViaAPI() {
+export async function checkLoginViaAPI() {
   try {
     const ctx = await getContext();
     const resp = await ctx.request.get(XHS_USER_INFO_API, { timeout: 10000 });

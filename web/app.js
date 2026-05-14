@@ -594,12 +594,14 @@
   // ====== 定时任务 ======
   const scheduleEnabled = document.getElementById("schedule-enabled");
   const schedulePreset = document.getElementById("schedule-preset");
+  const scheduleAutoDraft = document.getElementById("schedule-auto-draft");
   const scheduleInfo = document.getElementById("schedule-info");
 
   async function loadSchedule() {
     try {
       const data = await api("GET", "/api/schedule");
       if (scheduleEnabled) scheduleEnabled.checked = data.enabled;
+      if (scheduleAutoDraft) scheduleAutoDraft.checked = !!data.autoSaveDraft;
       if (schedulePreset && data.cron) {
         const options = [...schedulePreset.options];
         const match = options.find(o => o.value === data.cron);
@@ -616,10 +618,12 @@
       return;
     }
     let text = "已启用";
+    if (data.autoSaveDraft) text += " + 自动存草稿";
     if (data.lastRun) {
       const d = new Date(data.lastRun);
       text += ` · 上次: ${d.toLocaleDateString("zh-CN")} ${d.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`;
-      if (data.lastResult && data.lastResult !== "success") text += ` (失败)`;
+      if (data.lastResult && data.lastResult !== "success" && !data.lastResult.startsWith("success")) text += ` (失败)`;
+      else if (data.lastResult && data.lastResult.includes("草稿失败")) text += ` (草稿失败)`;
     }
     scheduleInfo.textContent = text;
   }
@@ -629,6 +633,7 @@
       await api("PUT", "/api/schedule", {
         enabled: scheduleEnabled.checked,
         cron: schedulePreset.value,
+        autoSaveDraft: scheduleAutoDraft ? scheduleAutoDraft.checked : false,
       });
       await loadSchedule();
     } catch (err) {
@@ -639,6 +644,7 @@
   if (scheduleEnabled) {
     scheduleEnabled.addEventListener("change", saveSchedule);
     schedulePreset.addEventListener("change", saveSchedule);
+    if (scheduleAutoDraft) scheduleAutoDraft.addEventListener("change", saveSchedule);
   }
 
   // ====== 小红书发布 ======
