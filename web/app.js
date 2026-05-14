@@ -974,7 +974,7 @@
   // 加载语言学习配置
   async function loadLangConfig() {
     try {
-      const resp = await fetch(`${BASE}/api/language/config`, { headers: authHeaders() });
+      const resp = await fetch(`${getBase()}/api/language/config`);
       if (resp.ok) {
         const config = await resp.json();
         const langSelect = document.getElementById("lang-select");
@@ -1000,9 +1000,9 @@
       langProgressText.textContent = "AI 生成词汇数据...";
 
       try {
-        const resp = await fetch(`${BASE}/api/language/generate`, {
+        const resp = await fetch(`${getBase()}/api/language/generate`, {
           method: "POST",
-          headers: { ...authHeaders(), "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ language, level }),
         });
         if (!resp.ok) throw new Error((await resp.json()).error || "请求失败");
@@ -1010,7 +1010,7 @@
         // 轮询状态
         const poll = setInterval(async () => {
           try {
-            const sr = await fetch(`${BASE}/api/language/status`, { headers: authHeaders() });
+            const sr = await fetch(`${getBase()}/api/language/status`);
             const st = await sr.json();
             if (st.progress) {
               const pct = Math.round((st.progress.step / st.progress.total) * 100);
@@ -1041,7 +1041,7 @@
                     if (r.images && r.images.length > 0) {
                       const imgName = r.images[0].split("/").pop();
                       const dateStr = r.dateStr;
-                      imgContainer.innerHTML = `<img src="${BASE}/output/lang-${dateStr}/${imgName}" alt="语言学习卡片" style="width:100%;border-radius:12px;">`;
+                      imgContainer.innerHTML = `<img src="${getBase()}/output/lang-${dateStr}/${imgName}" alt="语言学习卡片" style="width:100%;border-radius:12px;">`;
                     }
                     langResult.hidden = false;
                   }
