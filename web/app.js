@@ -14,6 +14,19 @@
   const $ = (sel) => document.querySelector(sel);
   const mainView = $("#main-view");
 
+  // ====== Tab Navigation ======
+  function switchTab(pageName) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    const tab = document.querySelector(`.tab-item[data-page="${pageName}"]`);
+    const page = document.getElementById('page-' + pageName);
+    if (tab) tab.classList.add('active');
+    if (page) page.classList.add('active');
+  }
+  document.querySelectorAll('.tab-item').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.page));
+  });
+
   // ====== API Helper ======
   function getBase() {
     return (window.API_BASE || "").replace(/\/+$/, "");
@@ -101,7 +114,10 @@
         } else {
           $("#progress-text").textContent = "✅ " + p.message;
           $("#progress-fill").style.background = "var(--success)";
-          if (p.date) loadImages(p.date);
+          if (p.date) {
+            loadImages(p.date);
+            switchTab('preview');
+          }
           loadHistory();
         }
 
@@ -144,6 +160,7 @@
           list.querySelectorAll(".history-item").forEach((i) => i.classList.remove("active"));
           item.classList.add("active");
           loadImages(item.dataset.date);
+          switchTab('preview');
         });
       });
 
@@ -672,14 +689,8 @@
   // Tab 切换逻辑
   document.querySelectorAll(".xhs-tab").forEach((tab) => {
     tab.addEventListener("click", () => {
-      document.querySelectorAll(".xhs-tab").forEach((t) => {
-        t.classList.remove("active");
-        t.style.borderBottomColor = "transparent";
-        t.style.color = "var(--text-secondary)";
-      });
+      document.querySelectorAll(".xhs-tab").forEach((t) => t.classList.remove("active"));
       tab.classList.add("active");
-      tab.style.borderBottomColor = "var(--color-primary, #7C3AED)";
-      tab.style.color = "var(--text-primary)";
 
       const mode = tab.dataset.tab;
       if (xhsSmsPanel) xhsSmsPanel.style.display = mode === "sms" ? "block" : "none";
@@ -687,13 +698,6 @@
       if (xhsCookiePanel) xhsCookiePanel.style.display = mode === "cookie" ? "block" : "none";
     });
   });
-
-  // 默认激活 Cookie Tab 样式
-  const defaultTab = document.querySelector('.xhs-tab[data-tab="cookie"]');
-  if (defaultTab) {
-    defaultTab.style.borderBottomColor = "var(--color-primary, #7C3AED)";
-    defaultTab.style.color = "var(--text-primary)";
-  }
 
   // Cookie 导入功能
   const btnImportCookie = $("#btn-xhs-import-cookie");
@@ -921,7 +925,7 @@
         alert("发布失败: " + err.message);
       } finally {
         btnXhsDraft.disabled = false;
-        btnXhsDraft.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg> 存草稿';
+        btnXhsDraft.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><span>存草稿</span>';
       }
     });
   }
