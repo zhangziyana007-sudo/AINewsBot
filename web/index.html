@@ -82,7 +82,67 @@
         </div>
       </section>
 
-      <!-- Page 3: 小红书 -->
+      <!-- Page 3: 语言学习 -->
+      <section class="tab-page" id="page-lang">
+        <div class="page-scroll">
+
+          <div class="section-header">语言学习卡片</div>
+
+          <div class="card">
+            <div class="card-row">
+              <span class="card-label">语言</span>
+              <select id="lang-select" class="card-select">
+                <option value="japanese">日语 🇯🇵</option>
+                <option value="korean">韩语 🇰🇷</option>
+              </select>
+            </div>
+            <div class="card-divider"></div>
+            <div class="card-row">
+              <span class="card-label">难度</span>
+              <select id="lang-level" class="card-select">
+                <option value="N5">入门 (N5)</option>
+                <option value="N4">初级 (N4)</option>
+                <option value="N3">中级 (N3)</option>
+                <option value="N2">中高级 (N2)</option>
+                <option value="N1">高级 (N1)</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn-generate" id="btn-lang-generate">
+            <span class="btn-text">生成学习卡片</span>
+            <span class="btn-spinner" hidden></span>
+          </button>
+
+          <div id="lang-progress" class="progress-area" hidden>
+            <div class="progress-bar"><div class="progress-fill" id="lang-progress-fill"></div></div>
+            <p class="progress-text" id="lang-progress-text"></p>
+          </div>
+
+          <div id="lang-result" hidden>
+            <div class="section-header">今日词汇</div>
+            <div class="card" style="text-align:center;padding:24px;">
+              <div id="lang-word" style="font-size:36px;font-weight:700;color:var(--accent);margin-bottom:8px;"></div>
+              <div id="lang-reading" style="font-size:18px;color:#8E8E93;margin-bottom:8px;"></div>
+              <div id="lang-meaning" style="font-size:22px;font-weight:600;color:var(--text);"></div>
+            </div>
+            <div id="lang-preview-img" style="margin-top:16px;"></div>
+          </div>
+
+          <div class="card" style="margin-top:16px;">
+            <div class="card-section-title">使用说明</div>
+            <div class="card-desc">
+              <p>1. 选择语言和难度级别</p>
+              <p>2. 点击「生成学习卡片」</p>
+              <p>3. AI 会生成每日词汇、例句和拓展词汇</p>
+              <p>4. 生成的图片可发布到小红书</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Page 4: 小红书 -->
       <section class="tab-page" id="page-xhs">
         <div class="page-scroll">
 
@@ -193,6 +253,10 @@
       <button class="tab-item" data-page="preview">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
         <span>预览</span>
+      </button>
+      <button class="tab-item" data-page="lang">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+        <span>学习</span>
       </button>
       <button class="tab-item" data-page="xhs">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>

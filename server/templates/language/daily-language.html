@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1080px;
+      min-height: 1440px;
+      background: {{BG_COLOR}};
+      font-family: "PingFang SC", "Noto Sans SC", "Hiragino Sans", "Microsoft YaHei", sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 48px 40px;
+    }
+
+    .card {
+      width: 100%;
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-radius: 32px;
+      border: 1px solid rgba(255,255,255,0.5);
+      padding: 56px 48px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+    }
+
+    /* 顶部日期栏 */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+    .top-bar .date {
+      font-size: 18px;
+      color: #8E8E93;
+      letter-spacing: 1px;
+    }
+    .top-bar .badge {
+      background: {{ACCENT_COLOR}};
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 6px 18px;
+      border-radius: 20px;
+    }
+
+    /* 语言标题 */
+    .lang-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .lang-header .lang-flag {
+      font-size: 64px;
+      margin-bottom: 12px;
+    }
+    .lang-header .lang-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1C1C1E;
+    }
+
+    /* 主词卡片 */
+    .word-card {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 24px;
+      padding: 48px 40px;
+      text-align: center;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    .word-card .word-original {
+      font-size: 72px;
+      font-weight: 700;
+      color: {{ACCENT_COLOR}};
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .word-card .word-reading {
+      font-size: 28px;
+      color: #6B7280;
+      margin-bottom: 24px;
+    }
+    .word-card .word-meaning {
+      font-size: 36px;
+      font-weight: 600;
+      color: #1C1C1E;
+      margin-bottom: 16px;
+    }
+    .word-card .word-type {
+      display: inline-block;
+      background: {{ACCENT_LIGHT}};
+      color: {{ACCENT_COLOR}};
+      font-size: 18px;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 12px;
+    }
+
+    /* 例句 */
+    .example-section {
+      margin-bottom: 32px;
+    }
+    .example-section .section-label {
+      font-size: 18px;
+      font-weight: 600;
+      color: #8E8E93;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+    .example-item {
+      background: rgba(255,255,255,0.5);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    .example-item .example-original {
+      font-size: 26px;
+      color: #1C1C1E;
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+    .example-item .example-reading {
+      font-size: 20px;
+      color: #8E8E93;
+      margin-bottom: 8px;
+    }
+    .example-item .example-meaning {
+      font-size: 22px;
+      color: #6B7280;
+    }
+
+    /* 拓展词汇 */
+    .extra-words {
+      margin-bottom: 32px;
+    }
+    .extra-words .section-label {
+      font-size: 18px;
+      font-weight: 600;
+      color: #8E8E93;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+    .extra-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .extra-item {
+      background: rgba(255,255,255,0.5);
+      border-radius: 14px;
+      padding: 20px 24px;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    .extra-item .extra-word {
+      font-size: 28px;
+      font-weight: 600;
+      color: {{ACCENT_COLOR}};
+      margin-bottom: 4px;
+    }
+    .extra-item .extra-reading {
+      font-size: 18px;
+      color: #8E8E93;
+      margin-bottom: 4px;
+    }
+    .extra-item .extra-meaning {
+      font-size: 18px;
+      color: #6B7280;
+    }
+
+    /* 底部 */
+    .footer {
+      text-align: center;
+      padding-top: 24px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+    .footer .footer-text {
+      font-size: 16px;
+      color: #8E8E93;
+    }
+    .footer .footer-brand {
+      font-size: 14px;
+      color: #C7C7CC;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-bar">
+      <span class="date">{{DATE_FULL}} {{WEEKDAY}}</span>
+      <span class="badge">{{DAY_LABEL}}</span>
+    </div>
+
+    <div class="lang-header">
+      <div class="lang-flag">{{LANG_FLAG}}</div>
+      <div class="lang-title">{{LANG_TITLE}}</div>
+    </div>
+
+    <div class="word-card">
+      <div class="word-original">{{WORD}}</div>
+      <div class="word-reading">{{READING}}</div>
+      <div class="word-meaning">{{MEANING}}</div>
+      <div class="word-type">{{WORD_TYPE}}</div>
+    </div>
+
+    <div class="example-section">
+      <div class="section-label">📝 例句</div>
+      {{EXAMPLES_HTML}}
+    </div>
+
+    <div class="extra-words">
+      <div class="section-label">📚 拓展词汇</div>
+      <div class="extra-grid">
+        {{EXTRA_WORDS_HTML}}
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-text">{{FOOTER_TEXT}}</div>
+      <div class="footer-brand">AI Daily · 每日语言学习</div>
+    </div>
+  </div>
+</body>
+</html>

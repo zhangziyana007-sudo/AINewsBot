@@ -964,6 +964,101 @@
   // 初始加载时检查小红书状态
   checkXHSStatus();
 
+  // ====== 语言学习卡片 ======
+  const btnLangGenerate = document.getElementById("btn-lang-generate");
+  const langProgress = document.getElementById("lang-progress");
+  const langProgressFill = document.getElementById("lang-progress-fill");
+  const langProgressText = document.getElementById("lang-progress-text");
+  const langResult = document.getElementById("lang-result");
+
+  // 加载语言学习配置
+  async function loadLangConfig() {
+    try {
+      const resp = await fetch(`${BASE}/api/language/config`, { headers: authHeaders() });
+      if (resp.ok) {
+        const config = await resp.json();
+        const langSelect = document.getElementById("lang-select");
+        const langLevel = document.getElementById("lang-level");
+        if (config.language && langSelect) langSelect.value = config.language;
+        if (config.level && langLevel) langLevel.value = config.level;
+      }
+    } catch {}
+  }
+  loadLangConfig();
+
+  if (btnLangGenerate) {
+    btnLangGenerate.addEventListener("click", async () => {
+      const language = document.getElementById("lang-select").value;
+      const level = document.getElementById("lang-level").value;
+
+      btnLangGenerate.disabled = true;
+      btnLangGenerate.querySelector(".btn-text").textContent = "生成中...";
+      btnLangGenerate.querySelector(".btn-spinner").hidden = false;
+      langProgress.hidden = false;
+      langResult.hidden = true;
+      langProgressFill.style.width = "33%";
+      langProgressText.textContent = "AI 生成词汇数据...";
+
+      try {
+        const resp = await fetch(`${BASE}/api/language/generate`, {
+          method: "POST",
+          headers: { ...authHeaders(), "Content-Type": "application/json" },
+          body: JSON.stringify({ language, level }),
+        });
+        if (!resp.ok) throw new Error((await resp.json()).error || "请求失败");
+
+        // 轮询状态
+        const poll = setInterval(async () => {
+          try {
+            const sr = await fetch(`${BASE}/api/language/status`, { headers: authHeaders() });
+            const st = await sr.json();
+            if (st.progress) {
+              const pct = Math.round((st.progress.step / st.progress.total) * 100);
+              langProgressFill.style.width = pct + "%";
+              langProgressText.textContent = st.progress.message || "处理中...";
+
+              if (st.progress.done) {
+                clearInterval(poll);
+                btnLangGenerate.disabled = false;
+                btnLangGenerate.querySelector(".btn-text").textContent = "生成学习卡片";
+                btnLangGenerate.querySelector(".btn-spinner").hidden = true;
+
+                if (st.progress.error) {
+                  langProgressText.textContent = "错误: " + st.progress.error;
+                } else {
+                  langProgressFill.style.width = "100%";
+                  langProgressText.textContent = st.progress.message;
+
+                  // 显示结果
+                  const r = st.progress.result;
+                  if (r && r.langData) {
+                    document.getElementById("lang-word").textContent = r.langData.word;
+                    document.getElementById("lang-reading").textContent = r.langData.reading;
+                    document.getElementById("lang-meaning").textContent = r.langData.meaning;
+
+                    // 显示截图
+                    const imgContainer = document.getElementById("lang-preview-img");
+                    if (r.images && r.images.length > 0) {
+                      const imgName = r.images[0].split("/").pop();
+                      const dateStr = r.dateStr;
+                      imgContainer.innerHTML = `<img src="${BASE}/output/lang-${dateStr}/${imgName}" alt="语言学习卡片" style="width:100%;border-radius:12px;">`;
+                    }
+                    langResult.hidden = false;
+                  }
+                }
+              }
+            }
+          } catch {}
+        }, 1500);
+      } catch (err) {
+        langProgressText.textContent = "错误: " + err.message;
+        btnLangGenerate.disabled = false;
+        btnLangGenerate.querySelector(".btn-text").textContent = "生成学习卡片";
+        btnLangGenerate.querySelector(".btn-spinner").hidden = true;
+      }
+    });
+  }
+
   // ====== Init ======
   showMain();
 })();

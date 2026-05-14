@@ -28,6 +28,7 @@ import templatesRouter from "./routes/templates.js";
 import scheduleRouter from "./routes/schedule.js";
 import historyRouter from "./routes/history.js";
 import xhsRouter from "./routes/xhs.js";
+import languageRouter from "./routes/language.js";
 import { startScheduler } from "./services/scheduler.js";
 import { publishToXHS, checkLoginViaAPI, generateXHSCaption } from "./services/xhs.js";
 import { getCache } from "./services/cache.js";
@@ -75,6 +76,7 @@ app.use("/api/templates", templatesRouter);
 app.use("/api/schedule", scheduleRouter);
 app.use("/api/history", historyRouter);
 app.use("/api/xhs", xhsRouter);
+app.use("/api/language", languageRouter);
 
 // 健康检查
 app.get("/api/health", (req, res) => {
