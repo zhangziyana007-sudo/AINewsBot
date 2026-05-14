@@ -4,13 +4,13 @@
  */
 
 :root {
-  --bg: #F5F5F7;
-  --bg-secondary: #FFFFFF;
-  --surface: #FFFFFF;
-  --surface-hover: #F0F0F2;
+  --bg: #E8E8ED;
+  --bg-secondary: #F2F2F7;
+  --surface: rgba(255, 255, 255, 0.6);
+  --surface-hover: rgba(255, 255, 255, 0.8);
   --surface-border: rgba(0, 0, 0, 0.06);
-  --glass: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass: rgba(255, 255, 255, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.6);
   --text: #1D1D1F;
   --text-secondary: #6E6E73;
   --text-tertiary: #AEAEB2;
@@ -65,13 +65,13 @@ html, body {
     border-right: 1px solid var(--border-light);
     box-shadow: var(--shadow-lg);
   }
-  body { background: #E8E8ED; }
+  body { background: linear-gradient(180deg, #D4D4DC 0%, #BFBFC8 100%); }
 }
 
 /* ====== Header ====== */
 .app-header {
   height: var(--header-h);
-  background: var(--glass);
+  background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   display: flex;
@@ -130,10 +130,12 @@ html, body {
 /* ====== Cards (macOS grouped) ====== */
 .card {
   background: var(--surface);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: var(--radius);
   margin-bottom: 12px;
   overflow: hidden;
-  border: 0.5px solid var(--border-light);
+  border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s;
 }
@@ -278,7 +280,7 @@ html, body {
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.2s;
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.4);
   overflow: hidden;
   position: relative;
 }
@@ -293,7 +295,7 @@ html, body {
   height: 200px;
   overflow: hidden;
   position: relative;
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 8px;
 }
 .tpl-preview iframe {
@@ -591,10 +593,10 @@ html, body {
   justify-content: space-around;
   height: var(--tabbar-h);
   padding-bottom: var(--safe-bottom);
-  background: rgba(249, 249, 249, 0.94);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-top: 1px solid var(--border-light);
+  background: rgba(249, 249, 249, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 0.5px solid var(--glass-border);
   flex-shrink: 0;
   z-index: 10;
 }
@@ -647,9 +649,9 @@ html, body {
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
-  background: #F2F2F7;
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  background: rgba(242, 242, 247, 0.75);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
   border-radius: 20px 20px 0 0;
   display: flex;
   flex-direction: column;
@@ -775,7 +777,7 @@ html, body {
   font-size: 14px;
   font-family: var(--font);
   outline: none;
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.4);
   color: var(--text);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -848,7 +850,7 @@ html, body {
   height: 380px;
   overflow: hidden;
   border-radius: var(--radius);
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.4);
   margin-bottom: 16px;
   border: 1px solid var(--border-light);
 }
@@ -894,7 +896,7 @@ html, body {
   border-radius: var(--radius-sm);
   font-size: 14px;
   font-family: var(--font);
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.4);
   color: var(--text);
   outline: none;
 }
@@ -956,7 +958,7 @@ html, body {
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-family: monospace;
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.4);
   color: var(--text);
   resize: vertical;
   outline: none;
@@ -978,7 +980,7 @@ html, body {
   border-radius: var(--radius-sm);
   font-size: 16px;
   font-family: var(--font);
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.4);
   color: var(--text);
   outline: none;
   margin-bottom: 12px;
