@@ -10,7 +10,7 @@
 import { Router } from "express";
 import { readFile, writeFile } from "node:fs/promises";
 import { authRequired } from "./auth.js";
-import { TEMPLATE_CONFIG, TEXT_CONFIG } from "../services/render.js";
+import { TEMPLATE_CONFIG, TEXT_CONFIG, renderPreviewCover } from "../services/render.js";
 
 const router = Router();
 
@@ -67,3 +67,23 @@ router.put("/:themeId/text", authRequired, async (req, res) => {
 });
 
 export default router;
+
+// ====== 模板 HTML 预览 ======
+router.get("/:themeId/preview-html", async (req, res) => {
+  try {
+    const html = await renderPreviewCover(req.params.themeId);
+    res.type("html").send(html);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 带自定义文字的预览（POST body = text config）
+router.post("/:themeId/preview-html", authRequired, async (req, res) => {
+  try {
+    const html = await renderPreviewCover(req.params.themeId, req.body);
+    res.type("html").send(html);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});

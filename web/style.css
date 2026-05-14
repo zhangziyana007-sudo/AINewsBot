@@ -273,8 +273,21 @@ html, body {
 
 .tpl-preview {
   width: 100%;
-  height: 100px;
+  height: 160px;
   overflow: hidden;
+  position: relative;
+  background: #e5e5ea;
+}
+.tpl-preview iframe {
+  width: 1080px;
+  height: 1440px;
+  transform: scale(0.14);
+  transform-origin: top left;
+  border: none;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 .tpl-preview img {
   width: 100%;
@@ -787,6 +800,25 @@ html, body {
 
 /* ====== Text Config in Sheet ====== */
 .text-config-form { padding: 4px 0; }
+
+.text-preview-wrap {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #e5e5ea;
+  margin-bottom: 16px;
+}
+.text-preview-wrap iframe {
+  width: 1080px;
+  height: 1440px;
+  transform: scale(0.26);
+  transform-origin: top left;
+  border: none;
+  pointer-events: none;
+}
+
 .text-theme-hint {
   font-size: 13px;
   color: var(--text-secondary);

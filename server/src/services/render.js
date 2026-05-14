@@ -335,4 +335,69 @@ export async function renderAll(grouped, dateInfo, outputDir) {
 }
 
 // 导出配置路径和函数供路由使用
-export { TEMPLATE_CONFIG, TEXT_CONFIG, loadTemplateText };
+export { TEMPLATE_CONFIG, TEXT_CONFIG, loadTemplateText, DEFAULT_TEXT };
+
+/**
+ * 渲染模板封面的 HTML 预览（使用示例数据）
+ * @param {string} themeId - 主题 ID
+ * @param {object} [customText] - 可选的自定义文字配置，优先于已保存配置
+ * @returns {string} 完整的 HTML 字符串
+ */
+export async function renderPreviewCover(themeId, customText) {
+  const theme = themeId || await getActiveThemeId();
+  let themeDir = resolve(TEMPLATES_DIR, theme);
+  if (!existsSync(themeDir)) themeDir = TEMPLATES_DIR;
+
+  const path = resolve(themeDir, "daily-cover.html");
+  let html = await readFile(path, "utf-8");
+
+  if (html.includes('href="styles.css"')) {
+    const cssPath = resolve(themeDir, "styles.css");
+    const css = await readFile(cssPath, "utf-8");
+    html = html.replace(
+      /<link rel="stylesheet" href="styles.css">/,
+      `<style>\n${css}\n</style>`
+    );
+  }
+
+  const today = new Date();
+  const dateInfo = {
+    full: `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`,
+    year: today.getFullYear(),
+    month: String(today.getMonth()+1).padStart(2,'0'),
+    day: String(today.getDate()).padStart(2,'0'),
+    weekday: ['周日','周一','周二','周三','周四','周五','周六'][today.getDay()],
+    short: `${today.getMonth()+1}月${today.getDate()}日`,
+    iso: today.toISOString().slice(0,10),
+  };
+
+  const sampleNews = [
+    "OpenAI 发布 GPT-5 模型，多模态能力大幅提升",
+    "谷歌 DeepMind 推出新一代蛋白质预测工具",
+    "英伟达发布新一代 AI 芯片 B300 架构",
+    "Meta 开源 Llama 4 模型，支持 200 种语言",
+    "微软 Copilot 全面接入 Windows 系统",
+    "百度文心一言 5.0 发布，推理能力再升级",
+  ];
+
+  const newsListHtml = sampleNews.map((title, i) => {
+    const idx = String(i + 1).padStart(2, '0');
+    return `<li class="cover-news-item"><span class="cover-news-idx">[${idx}]</span><span class="cover-news-text">${escapeHTML(title)}</span></li>`;
+  }).join("\n          ");
+
+  const data = {
+    DATE_FULL: dateInfo.full,
+    DATE_YEAR: dateInfo.year,
+    DATE_MONTH: dateInfo.month,
+    DATE_DAY: dateInfo.day,
+    WEEKDAY: dateInfo.weekday,
+    NEWS_LIST_HTML: newsListHtml,
+    TOTAL_COUNT: sampleNews.length,
+    DAILY_QUOTE: "最好的预测未来的方式，就是去创造它。",
+  };
+
+  const text = customText || await loadTemplateText(theme);
+  injectTextVars(data, text, "cover");
+
+  return render(html, data);
+}

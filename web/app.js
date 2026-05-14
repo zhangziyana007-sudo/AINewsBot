@@ -241,7 +241,8 @@
 
   // ====== 模板管理 ======
   function getTemplatePreview(id) {
-    return `<div class="tpl-preview"><img src="previews/${id}.png" alt="${id} 预览" loading="lazy" /></div>`;
+    const previewUrl = getBase() + `/api/templates/${id}/preview-html`;
+    return `<div class="tpl-preview"><iframe src="${previewUrl}" loading="lazy" sandbox="allow-same-origin" scrolling="no" title="${id} 预览"></iframe></div>`;
   }
 
   async function loadTemplates() {
@@ -520,31 +521,61 @@
 
     body.innerHTML = `
       <div class="text-config-form">
-        <p class="text-theme-hint">当前主题：<strong>${themeId}</strong></p>
+        <div class="text-preview-wrap">
+          <iframe id="text-preview-iframe" src="${getBase()}/api/templates/${themeId}/preview-html" sandbox="allow-same-origin" scrolling="no"></iframe>
+        </div>
+        <p class="text-theme-hint">当前主题：<strong>${themeId}</strong> · 编辑后点击预览查看效果</p>
         ${renderGroup("封面", "cover", TEXT_FIELDS.cover)}
         ${renderGroup("内容页", "section", TEXT_FIELDS.section)}
         ${renderGroup("通用", "shared", TEXT_FIELDS.shared)}
         <div class="text-config-actions">
+          <button class="btn-sm" id="btn-preview-text">👁 预览</button>
           <button class="btn-sm primary" id="btn-save-text">保存文字配置</button>
           <span class="text-save-status" id="text-save-status"></span>
         </div>
       </div>`;
 
-    $("#btn-save-text").addEventListener("click", async () => {
+    function collectTextValues() {
       const result = { cover: {}, section: {}, shared: {} };
-
       body.querySelectorAll("input[data-group]").forEach(el => {
         const group = el.dataset.group;
         const key = el.dataset.key;
         const val = el.value.trim();
         if (!val) return;
-
         if (group === "shared") {
           result.shared[key] = val.split(",").map(s => s.trim());
         } else {
           result[group][key] = val;
         }
       });
+      return result;
+    }
+
+    // 预览按钮 — 用当前文字重新渲染模板
+    $("#btn-preview-text").addEventListener("click", async () => {
+      const textValues = collectTextValues();
+      const previewBtn = $("#btn-preview-text");
+      previewBtn.disabled = true;
+      previewBtn.textContent = "渲染中...";
+      try {
+        const resp = await fetch(getBase() + `/api/templates/${themeId}/preview-html`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(textValues),
+        });
+        const html = await resp.text();
+        const iframe = $("#text-preview-iframe");
+        iframe.srcdoc = html;
+      } catch (err) {
+        console.error("预览失败:", err);
+      } finally {
+        previewBtn.disabled = false;
+        previewBtn.textContent = "👁 预览";
+      }
+    });
+
+    $("#btn-save-text").addEventListener("click", async () => {
+      const result = collectTextValues();
 
       try {
         await api("PUT", `/api/templates/${themeId}/text`, result);
