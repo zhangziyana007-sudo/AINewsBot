@@ -175,6 +175,7 @@ html, body {
 }
 
 .main-content {
+  min-height: 0;
   flex: 1;
   display: flex;
   gap: 20px;
@@ -184,6 +185,9 @@ html, body {
 
 /* ====== Sidebar ====== */
 .sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   width: 320px;
   flex-shrink: 0;
 }

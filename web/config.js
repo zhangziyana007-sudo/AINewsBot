@@ -4,4 +4,7 @@
  * 部署到 Cloudflare Pages 时，修改 API_BASE 为你的 VPS 地址
  * 也可以在 Web UI「后端服务器」处动态修改
  */
-window.API_BASE = localStorage.getItem("aibot_api_base") || "https://aibotapi.zizaya.top";
+// 清理失效的旧域名
+var _stored = localStorage.getItem("aibot_api_base");
+if (_stored && _stored.includes("aibotapi.zizaya.top")) { localStorage.removeItem("aibot_api_base"); _stored = null; }
+window.API_BASE = _stored || "";

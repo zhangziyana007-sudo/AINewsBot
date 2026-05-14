@@ -651,6 +651,85 @@
   const xhsQrImg = $("#xhs-qr-img");
   const xhsLoginMsg = $("#xhs-login-msg");
   const btnXhsCheck = $("#btn-xhs-check");
+  const btnXhsLoadQr = $("#btn-xhs-load-qr");
+
+  // 短信登录元素
+  const xhsSmsMsg = $("#xhs-sms-msg");
+  const xhsPhone = $("#xhs-phone");
+  const xhsCode = $("#xhs-code");
+  const btnXhsSendCode = $("#btn-xhs-send-code");
+  const btnXhsSmsLogin = $("#btn-xhs-sms-login");
+  const xhsSmsPanel = $("#xhs-sms-panel");
+  const xhsQrPanel = $("#xhs-qr-panel");
+  const xhsCookiePanel = $("#xhs-cookie-panel");
+
+  // Tab 切换逻辑
+  document.querySelectorAll(".xhs-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".xhs-tab").forEach((t) => {
+        t.classList.remove("active");
+        t.style.borderBottomColor = "transparent";
+        t.style.color = "var(--text-secondary)";
+      });
+      tab.classList.add("active");
+      tab.style.borderBottomColor = "var(--color-primary, #7C3AED)";
+      tab.style.color = "var(--text-primary)";
+
+      const mode = tab.dataset.tab;
+      if (xhsSmsPanel) xhsSmsPanel.style.display = mode === "sms" ? "block" : "none";
+      if (xhsQrPanel) xhsQrPanel.style.display = mode === "qr" ? "block" : "none";
+      if (xhsCookiePanel) xhsCookiePanel.style.display = mode === "cookie" ? "block" : "none";
+    });
+  });
+
+  // 默认激活 Cookie Tab 样式
+  const defaultTab = document.querySelector('.xhs-tab[data-tab="cookie"]');
+  if (defaultTab) {
+    defaultTab.style.borderBottomColor = "var(--color-primary, #7C3AED)";
+    defaultTab.style.color = "var(--text-primary)";
+  }
+
+  // Cookie 导入功能
+  const btnImportCookie = $("#btn-xhs-import-cookie");
+  const cookieInput = $("#xhs-cookie-input");
+  const cookieMsg = $("#xhs-cookie-msg");
+
+  if (btnImportCookie) {
+    btnImportCookie.addEventListener("click", async () => {
+      const raw = cookieInput?.value?.trim();
+      if (!raw) {
+        if (cookieMsg) { cookieMsg.textContent = "请粘贴 Cookie JSON"; cookieMsg.style.color = "#ef4444"; }
+        return;
+      }
+      // 简单验证 JSON 格式
+      try { JSON.parse(raw); } catch {
+        if (cookieMsg) { cookieMsg.textContent = "JSON 格式无效，请检查"; cookieMsg.style.color = "#ef4444"; }
+        return;
+      }
+
+      btnImportCookie.disabled = true;
+      btnImportCookie.textContent = "导入中...";
+      if (cookieMsg) { cookieMsg.textContent = ""; cookieMsg.style.color = "var(--text-secondary)"; }
+
+      try {
+        const data = await api("POST", "/api/xhs/login/cookies", { cookies: raw });
+        if (data.loggedIn) {
+          if (cookieMsg) { cookieMsg.textContent = data.message || "导入成功，登录有效！"; cookieMsg.style.color = "#22c55e"; }
+          // 更新侧边栏状态
+          checkXHSStatus();
+          // 2 秒后关闭弹窗
+          setTimeout(() => { xhsModal.hidden = true; }, 2000);
+        } else {
+          if (cookieMsg) { cookieMsg.textContent = data.message || "Cookie 已导入但登录未生效"; cookieMsg.style.color = "#f59e0b"; }
+        }
+      } catch (err) {
+        if (cookieMsg) { cookieMsg.textContent = "导入失败: " + (err.message || "未知错误"); cookieMsg.style.color = "#ef4444"; }
+      } finally {
+        btnImportCookie.disabled = false;
+        btnImportCookie.textContent = "导入 Cookie";
+      }
+    });
+  }
 
   // 检查小红书登录状态
   async function checkXHSStatus() {
@@ -671,12 +750,102 @@
     }
   }
 
-  // 启动扫码登录
+  // 打开登录弹窗
   if (btnXhsLogin) {
-    btnXhsLogin.addEventListener("click", async () => {
+    btnXhsLogin.addEventListener("click", () => {
       xhsModal.hidden = false;
-      xhsLoginMsg.textContent = "正在加载登录页面...";
+      // 重置状态
+      if (xhsSmsMsg) xhsSmsMsg.textContent = "";
+      if (xhsPhone) xhsPhone.value = "";
+      if (xhsCode) xhsCode.value = "";
+      if (btnXhsSmsLogin) btnXhsSmsLogin.disabled = true;
+      if (xhsLoginMsg) xhsLoginMsg.textContent = "点击下方按钮加载二维码";
+      if (xhsQrImg) xhsQrImg.src = "";
+      if (cookieInput) cookieInput.value = "";
+      if (cookieMsg) { cookieMsg.textContent = ""; cookieMsg.style.color = "var(--text-secondary)"; }
+    });
+  }
+
+  // ---- 短信登录：发送验证码 ----
+  if (btnXhsSendCode) {
+    btnXhsSendCode.addEventListener("click", async () => {
+      const phone = xhsPhone.value.trim();
+      if (!/^1\d{10}$/.test(phone)) {
+        xhsSmsMsg.textContent = "请输入正确的11位手机号";
+        xhsSmsMsg.style.color = "#ef4444";
+        return;
+      }
+      btnXhsSendCode.disabled = true;
+      btnXhsSendCode.textContent = "发送中...";
+      xhsSmsMsg.textContent = "";
+      try {
+        const data = await api("POST", "/api/xhs/login/sms/send", { phone });
+        xhsSmsMsg.textContent = data.message || "验证码已发送";
+        xhsSmsMsg.style.color = "#22c55e";
+        btnXhsSmsLogin.disabled = false;
+        // 倒计时60秒
+        let countdown = 60;
+        btnXhsSendCode.textContent = `${countdown}s`;
+        const timer = setInterval(() => {
+          countdown--;
+          if (countdown <= 0) {
+            clearInterval(timer);
+            btnXhsSendCode.disabled = false;
+            btnXhsSendCode.textContent = "重新发送";
+          } else {
+            btnXhsSendCode.textContent = `${countdown}s`;
+          }
+        }, 1000);
+      } catch (err) {
+        xhsSmsMsg.textContent = "发送失败: " + err.message;
+        xhsSmsMsg.style.color = "#ef4444";
+        btnXhsSendCode.disabled = false;
+        btnXhsSendCode.textContent = "发送验证码";
+      }
+    });
+  }
+
+  // ---- 短信登录：验证码登录 ----
+  if (btnXhsSmsLogin) {
+    btnXhsSmsLogin.addEventListener("click", async () => {
+      const code = xhsCode.value.trim();
+      if (!/^\d{4,6}$/.test(code)) {
+        xhsSmsMsg.textContent = "请输入4-6位数字验证码";
+        xhsSmsMsg.style.color = "#ef4444";
+        return;
+      }
+      btnXhsSmsLogin.disabled = true;
+      btnXhsSmsLogin.textContent = "登录中...";
+      try {
+        const data = await api("POST", "/api/xhs/login/sms/verify", { code });
+        if (data.loggedIn) {
+          xhsSmsMsg.textContent = "登录成功！";
+          xhsSmsMsg.style.color = "#22c55e";
+          setTimeout(() => {
+            xhsModal.hidden = true;
+            checkXHSStatus();
+          }, 1500);
+        } else {
+          xhsSmsMsg.textContent = data.message || "登录未成功";
+          xhsSmsMsg.style.color = "#ef4444";
+        }
+      } catch (err) {
+        xhsSmsMsg.textContent = "登录失败: " + err.message;
+        xhsSmsMsg.style.color = "#ef4444";
+      } finally {
+        btnXhsSmsLogin.disabled = false;
+        btnXhsSmsLogin.textContent = "登 录";
+      }
+    });
+  }
+
+  // ---- 扫码登录：加载二维码 ----
+  if (btnXhsLoadQr) {
+    btnXhsLoadQr.addEventListener("click", async () => {
+      xhsLoginMsg.textContent = "正在加载二维码...";
       xhsQrImg.src = "";
+      btnXhsLoadQr.disabled = true;
+      btnXhsLoadQr.textContent = "加载中...";
       try {
         const data = await api("POST", "/api/xhs/login");
         xhsLoginMsg.textContent = data.message || "请使用小红书 App 扫描二维码";
@@ -685,11 +854,14 @@
         }
       } catch (err) {
         xhsLoginMsg.textContent = "加载失败: " + err.message;
+      } finally {
+        btnXhsLoadQr.disabled = false;
+        btnXhsLoadQr.textContent = "加载二维码";
       }
     });
   }
 
-  // 检查登录状态
+  // ---- 扫码登录：检查登录状态 ----
   if (btnXhsCheck) {
     btnXhsCheck.addEventListener("click", async () => {
       try {

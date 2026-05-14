@@ -148,58 +148,95 @@
           </div>
         </div>
       </main>
+    </div>
+  </div>
 
-      <!-- 模型配置弹窗 -->
-      <div id="model-modal" class="modal-overlay" hidden>
-        <div class="modal mac-window">
-          <div class="mac-titlebar">
-            <div class="traffic-lights">
-              <span class="dot red" id="modal-close"></span>
-              <span class="dot yellow"></span>
-              <span class="dot green"></span>
-            </div>
-            <span class="titlebar-text">模型配置</span>
-          </div>
-          <div class="modal-body" id="model-config-body"></div>
-          <div class="modal-footer">
-            <button class="btn-add-model" id="btn-add-model">＋ 添加自定义模型</button>
-          </div>
+  <!-- 全局弹窗（必须在 main-content 外，避免 overflow:hidden 截断） -->
+
+  <!-- 模型配置弹窗 -->
+  <div id="model-modal" class="modal-overlay" hidden>
+    <div class="modal mac-window">
+      <div class="mac-titlebar">
+        <div class="traffic-lights">
+          <span class="dot red" id="modal-close"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
         </div>
+        <span class="titlebar-text">模型配置</span>
       </div>
+      <div class="modal-body" id="model-config-body"></div>
+      <div class="modal-footer">
+        <button class="btn-add-model" id="btn-add-model">＋ 添加自定义模型</button>
+      </div>
+    </div>
+  </div>
 
-      <!-- 模板文字编辑弹窗 -->
-      <div id="text-modal" class="modal-overlay" hidden>
-
-      <!-- 小红书登录弹窗 -->
-      <div id="xhs-modal" class="modal-overlay" hidden>
-        <div class="modal mac-window" style="max-width: 480px;">
-          <div class="mac-titlebar">
-            <div class="traffic-lights">
-              <span class="dot red" id="xhs-modal-close"></span>
-              <span class="dot yellow"></span>
-              <span class="dot green"></span>
-            </div>
-            <span class="titlebar-text">小红书扫码登录</span>
-          </div>
-          <div class="modal-body" style="text-align: center; padding: 24px;">
-            <p id="xhs-login-msg" style="margin-bottom: 16px; color: var(--text-secondary);">正在加载二维码...</p>
-            <img id="xhs-qr-img" style="max-width: 360px; border-radius: 8px; border: 1px solid var(--border-color);" alt="小红书登录二维码">
-            <div style="margin-top: 16px;">
-              <button class="btn-small btn-outline" id="btn-xhs-check">检查登录状态</button>
-            </div>
-          </div>
+  <!-- 模板文字编辑弹窗 -->
+  <div id="text-modal" class="modal-overlay" hidden>
+    <div class="modal mac-window" style="max-width: 580px;">
+      <div class="mac-titlebar">
+        <div class="traffic-lights">
+          <span class="dot red" id="text-modal-close"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
         </div>
+        <span class="titlebar-text">模板文字编辑</span>
       </div>
-        <div class="modal mac-window" style="max-width: 580px;">
-          <div class="mac-titlebar">
-            <div class="traffic-lights">
-              <span class="dot red" id="text-modal-close"></span>
-              <span class="dot yellow"></span>
-              <span class="dot green"></span>
-            </div>
-            <span class="titlebar-text">模板文字编辑</span>
+      <div class="modal-body" id="text-config-body" style="max-height: 60vh; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+  <!-- 小红书登录弹窗 -->
+  <div id="xhs-modal" class="modal-overlay" hidden>
+    <div class="modal mac-window" style="max-width: 480px;">
+      <div class="mac-titlebar">
+        <div class="traffic-lights">
+          <span class="dot red" id="xhs-modal-close"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <span class="titlebar-text">小红书登录</span>
+      </div>
+      <div class="modal-body" style="padding: 0;">
+        <!-- 登录方式 Tab -->
+        <div style="display: flex; border-bottom: 1px solid var(--border-color);">
+          <button class="xhs-tab active" data-tab="cookie" style="flex:1; padding: 12px; border: none; background: none; cursor: pointer; font-size: 14px; color: var(--text-secondary); border-bottom: 2px solid transparent;">Cookie 导入</button>
+          <button class="xhs-tab" data-tab="qr" style="flex:1; padding: 12px; border: none; background: none; cursor: pointer; font-size: 14px; color: var(--text-secondary); border-bottom: 2px solid transparent;">扫码登录</button>
+          <button class="xhs-tab" data-tab="sms" style="flex:1; padding: 12px; border: none; background: none; cursor: pointer; font-size: 14px; color: var(--text-secondary); border-bottom: 2px solid transparent;">短信登录</button>
+        </div>
+
+        <!-- Cookie 导入面板（推荐，默认显示） -->
+        <div id="xhs-cookie-panel" style="padding: 24px; text-align: center;">
+          <p style="margin-bottom: 12px; color: var(--text-secondary); font-size: 13px; text-align: left; line-height: 1.6;">
+            推荐方式：从 Chrome 浏览器导出 Cookie 后粘贴到下方。<br>
+            <span style="color: var(--text-tertiary);">提示：安装 <a href="https://chromewebstore.google.com/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg" target="_blank" rel="noopener" style="color: var(--accent);">EditThisCookie</a> 或 <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" rel="noopener" style="color: var(--accent);">Cookie-Editor</a> 扩展，登录小红书创作者中心后导出 JSON</span>
+          </p>
+          <textarea id="xhs-cookie-input" placeholder='粘贴 Cookie JSON（数组格式，如 [{"name":"...", "value":"...", "domain":"..."}]）' style="width: 100%; height: 140px; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; font-family: monospace; background: var(--bg-card); color: var(--text-primary); box-sizing: border-box; resize: vertical;"></textarea>
+          <p id="xhs-cookie-msg" style="margin-top: 8px; min-height: 20px; font-size: 13px; color: var(--text-secondary);"></p>
+          <button class="btn-small btn-primary" id="btn-xhs-import-cookie" style="width: 100%; padding: 12px; font-size: 15px; margin-top: 8px;">导入 Cookie</button>
+        </div>
+
+        <!-- 短信登录面板 -->
+        <div id="xhs-sms-panel" style="padding: 24px; text-align: center; display: none;">
+          <p id="xhs-sms-msg" style="margin-bottom: 16px; color: var(--text-secondary); min-height: 20px;"></p>
+          <div style="margin-bottom: 12px;">
+            <input id="xhs-phone" type="tel" maxlength="11" placeholder="请输入手机号" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; background: var(--bg-card); color: var(--text-primary); box-sizing: border-box;">
           </div>
-          <div class="modal-body" id="text-config-body" style="max-height: 60vh; overflow-y: auto;"></div>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <input id="xhs-code" type="text" maxlength="6" placeholder="验证码" style="flex: 1; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; background: var(--bg-card); color: var(--text-primary);">
+            <button class="btn-small" id="btn-xhs-send-code" style="white-space: nowrap; padding: 10px 16px;">发送验证码</button>
+          </div>
+          <button class="btn-small btn-primary" id="btn-xhs-sms-login" style="width: 100%; padding: 12px; font-size: 15px;" disabled>登 录</button>
+        </div>
+
+        <!-- 扫码登录面板 -->
+        <div id="xhs-qr-panel" style="padding: 24px; text-align: center; display: none;">
+          <p id="xhs-login-msg" style="margin-bottom: 16px; color: var(--text-secondary);">点击下方按钮加载二维码</p>
+          <img id="xhs-qr-img" style="max-width: 360px; border-radius: 8px; border: 1px solid var(--border-color);" alt="小红书登录二维码">
+          <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: center;">
+            <button class="btn-small" id="btn-xhs-load-qr">加载二维码</button>
+            <button class="btn-small btn-outline" id="btn-xhs-check">检查登录状态</button>
+          </div>
         </div>
       </div>
     </div>

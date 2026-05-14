@@ -1,10 +1,14 @@
 /**
- * 小红书发布路由
+ * 小红书发布路由（v2）
  *
- * POST /api/xhs/login        — 启动扫码登录，返回二维码截图
- * GET  /api/xhs/login/status  — 检查登录状态
- * POST /api/xhs/publish       — 发布/保存草稿
- * GET  /api/xhs/status        — 获取登录状态
+ * POST /api/xhs/login             — 启动扫码登录
+ * GET  /api/xhs/login/status      — 检查登录状态
+ * POST /api/xhs/login/sms/send    — 短信登录-发送验证码
+ * POST /api/xhs/login/sms/verify  — 短信登录-验证码登录
+ * POST /api/xhs/login/cookies     — 导入 Cookie JSON
+ * POST /api/xhs/publish           — 发布/保存草稿
+ * GET  /api/xhs/status            — 获取登录状态
+ * POST /api/xhs/close             — 关闭浏览器
  */
 
 import { Router } from "express";
@@ -19,6 +23,9 @@ import {
   generateXHSCaption,
   getCookieStatus,
   closeBrowser,
+  startSmsLogin,
+  verifySmsCode,
+  importCookies,
 } from "../services/xhs.js";
 import { getCache } from "../services/cache.js";
 import { formatDateCN } from "../services/daily.js";
@@ -45,6 +52,45 @@ router.get("/login/status", authRequired, async (req, res) => {
     const result = await checkLoginStatus();
     res.json({ ok: true, ...result });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 短信登录 — 发送验证码
+router.post("/login/sms/send", authRequired, async (req, res) => {
+  try {
+    const { phone } = req.body;
+    const result = await startSmsLogin(phone);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error(`   ❌ 发送验证码失败: ${err.message}`);
+    res.status(500).json({ error: err.message, screenshot: err.screenshot });
+  }
+});
+
+// 短信登录 — 验证码登录
+router.post("/login/sms/verify", authRequired, async (req, res) => {
+  try {
+    const { code } = req.body;
+    const result = await verifySmsCode(code);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error(`   ❌ 验证码登录失败: ${err.message}`);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 导入 Cookie JSON
+router.post("/login/cookies", authRequired, async (req, res) => {
+  try {
+    const { cookies } = req.body;
+    if (!cookies) {
+      return res.status(400).json({ error: "请提供 cookies 数据" });
+    }
+    const result = await importCookies(cookies);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error(`   ❌ Cookie 导入失败: ${err.message}`);
     res.status(500).json({ error: err.message });
   }
 });
