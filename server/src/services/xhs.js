@@ -156,34 +156,89 @@ export async function startLogin() {
   // 切换到扫码登录模式
   console.log("   🔄 切换到扫码登录模式...");
   try {
-    const qrSwitch = page.locator(".css-jjnw1w img").first();
-    if (await qrSwitch.isVisible({ timeout: 5000 })) {
-      await qrSwitch.click();
-      await page.waitForTimeout(3000);
+    // 多选择器尝试定位切换按钮
+    const switchSelectors = [
+      ".css-jjnw1w img",
+      'img[src*="qrcode"]',
+      'img[src*="scan"]',
+      ".login-type-switch img",
+    ];
+    for (const sel of switchSelectors) {
+      try {
+        const el = page.locator(sel).first();
+        if (await el.isVisible({ timeout: 2000 })) {
+          await el.click();
+          await page.waitForTimeout(3000);
+          console.log("   ✅ 切换成功 (选择器: " + sel + ")");
+          break;
+        }
+      } catch {}
     }
   } catch {}
 
-  // 截取二维码区域
+  // 截取二维码 —— 优先直接对 QR 元素截图，而不是 clip 整个页面
   let screenshot;
+  console.log("   📸 截取二维码...");
+
+  // 尝试方案1：找到 data:image 的大尺寸 QR 码（160x160 或更大）
   try {
-    const qrImg = page.locator(".css-jjnw1w img[src^='data:image']").first();
-    if (await qrImg.isVisible({ timeout: 3000 })) {
-      const qrBox = await qrImg.boundingBox();
-      if (qrBox) {
-        screenshot = await page.screenshot({
-          type: "png",
-          timeout: 60000,
-          clip: {
-            x: Math.max(0, qrBox.x - 80),
-            y: Math.max(0, qrBox.y - 60),
-            width: qrBox.width + 160,
-            height: qrBox.height + 140,
-          },
-        });
+    const allImgs = page.locator("img[src^='data:image']");
+    const count = await allImgs.count();
+    console.log("   🔍 找到 " + count + " 个 data:image 图片");
+    for (let i = 0; i < count; i++) {
+      const img = allImgs.nth(i);
+      if (await img.isVisible({ timeout: 1000 }).catch(() => false)) {
+        const box = await img.boundingBox();
+        if (box && box.width >= 100 && box.height >= 100) {
+          console.log("   ✅ 找到大尺寸 QR 图片: " + box.width + "x" + box.height);
+          // 截取 QR 码及周围区域
+          screenshot = await page.screenshot({
+            type: "png",
+            timeout: 10000,
+            clip: {
+              x: Math.max(0, box.x - 40),
+              y: Math.max(0, box.y - 30),
+              width: box.width + 80,
+              height: box.height + 80,
+            },
+          });
+          break;
+        }
       }
     }
-  } catch {}
+  } catch (err) {
+    console.log("   ⚠️ QR图片查找失败: " + err.message);
+  }
+
+  // 尝试方案2：截取 canvas 元素（某些版本用 canvas 画 QR）
   if (!screenshot) {
+    try {
+      const canvas = page.locator("canvas").first();
+      if (await canvas.isVisible({ timeout: 2000 })) {
+        screenshot = await canvas.screenshot({ type: "png", timeout: 10000 });
+        console.log("   ✅ Canvas QR截图成功");
+      }
+    } catch {}
+  }
+
+  // 尝试方案3：截取登录表单区域
+  if (!screenshot) {
+    const formSelectors = [".login-container", ".login-box", '[class*="login"]'];
+    for (const sel of formSelectors) {
+      if (screenshot) break;
+      try {
+        const el = page.locator(sel).first();
+        if (await el.isVisible({ timeout: 2000 })) {
+          screenshot = await el.screenshot({ type: "png", timeout: 10000 });
+          console.log("   ✅ 登录区域截图成功 (选择器: " + sel + ")");
+        }
+      } catch {}
+    }
+  }
+
+  // 方案3：全页截图兜底
+  if (!screenshot) {
+    console.log("   ⚠️ 未找到 QR 元素，使用全页截图");
     screenshot = await page.screenshot({ type: "png", timeout: 60000 });
   }
 
