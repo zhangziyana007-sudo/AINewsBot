@@ -701,32 +701,35 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   flex: 1;
-  padding: 6px 0;
+  padding: 8px 0;
   border: none;
   background: none;
   cursor: pointer;
   color: var(--text-tertiary);
   font-size: 10px;
+  font-weight: 500;
   font-family: var(--font);
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   -webkit-tap-highlight-color: transparent;
   border-radius: 16px;
+  position: relative;
 }
 
 .tab-item.active {
-  color: var(--accent);
-  background: rgba(45, 90, 61, 0.1);
-  border-radius: 14px;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(45, 90, 61, 0.3);
 }
 
 .tab-item svg {
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab-item.active svg {
-  stroke: var(--accent);
+  stroke: #fff;
 }
 
 /* ====== Modal / Bottom Sheet ====== */
