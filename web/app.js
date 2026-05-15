@@ -1147,9 +1147,22 @@
       if (xhsProgressFill) xhsProgressFill.style.width = "100%";
       if (xhsProgressText) xhsProgressText.textContent = data.message || "完成";
 
+      // 定时发布成功
+      if (data.scheduled) {
+        if (xhsPreviewWrap) {
+          xhsPreviewWrap.style.display = "block";
+          xhsPreviewImg.style.display = "none";
+          xhsPreviewMsg.textContent = `⏰ ${data.message}`;
+          xhsPreviewMsg.style.color = "#7C3AED";
+        }
+        alert(`⏰ 定时发布已设置！\n${data.message}`);
+        return;
+      }
+
       // 显示预览截图
       if (data.preview && xhsPreviewWrap) {
         xhsPreviewWrap.style.display = "block";
+        xhsPreviewImg.style.display = "block";
         xhsPreviewImg.src = data.preview;
         xhsPreviewMsg.textContent = data.message || (isDraft ? "已保存到草稿箱" : "已发布");
         xhsPreviewMsg.style.color = data.success ? "#22c55e" : "#f59e0b";
