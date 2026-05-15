@@ -133,6 +133,12 @@ html, body {
 .hero-greeting {
   padding: 8px 4px 20px;
 }
+.hero-greeting.hero-compact {
+  padding: 4px 4px 16px;
+}
+.hero-compact .greeting-title {
+  font-size: 22px;
+}
 .greeting-title {
   font-size: 28px;
   font-weight: 700;
