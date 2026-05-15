@@ -60,6 +60,22 @@
     const today = new Date();
     const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
     $("#input-date").value = iso;
+
+    // 更新今日信息
+    const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+    const todayInfo = $("#today-info");
+    if (todayInfo) todayInfo.textContent = `${today.getMonth() + 1}月${today.getDate()}日 ${weekdays[today.getDay()]}，准备生成日报`;
+
+    // 时间段问候语
+    const hour = today.getHours();
+    const greetingEl = $("#greeting-title");
+    if (greetingEl) {
+      if (hour < 6) greetingEl.textContent = "夜深了 🌙";
+      else if (hour < 12) greetingEl.textContent = "早上好 ☀️";
+      else if (hour < 14) greetingEl.textContent = "中午好 🌤";
+      else if (hour < 18) greetingEl.textContent = "下午好 🍃";
+      else greetingEl.textContent = "晚上好 🌙";
+    }
   }
 
   // ====== Generate ======
@@ -137,6 +153,10 @@
     try {
       const data = await api("GET", "/api/history");
       const list = $("#history-list");
+
+      // 更新统计数字
+      const statTotal = $("#stat-total");
+      if (statTotal) statTotal.textContent = data.dates ? data.dates.length : 0;
 
       if (data.dates.length === 0) {
         list.innerHTML = '<p class="muted">暂无历史记录</p>';
@@ -292,9 +312,16 @@
         select.innerHTML = '<option disabled selected>请先配置模型 →</option>';
       }
 
+      // 更新统计区的模型名
+      const activeModel = config.models.find(m => m.id === config.activeModelId);
+      const statModel = $("#stat-model");
+      if (statModel && activeModel) statModel.textContent = activeModel.name;
+
       select.onchange = async () => {
         try {
           await api("POST", "/api/models/active", { modelId: select.value });
+          const sel = select.options[select.selectedIndex];
+          if (statModel && sel) statModel.textContent = sel.text.split(' (')[0];
         } catch (err) {
           console.error("切换模型失败:", err);
         }
