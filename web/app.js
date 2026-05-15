@@ -61,6 +61,71 @@
     const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
     $("#input-date").value = iso;
 
+    // 更新日期显示
+    function updateDateDisplay(dateStr) {
+      const d = new Date(dateStr);
+      const wk = ["周日","周一","周二","周三","周四","周五","周六"];
+      const el = $("#date-display");
+      if (el) el.textContent = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${wk[d.getDay()]}`;
+    }
+    updateDateDisplay(iso);
+
+    // 自定义日历
+    (function initCalendar() {
+      let calDate = new Date(today);
+      let selectedDate = iso;
+      const todayStr = iso;
+      const modal = $("#calendar-modal");
+      const grid = $("#cal-grid");
+      const monthLabel = $("#cal-month");
+      if (!modal || !grid) return;
+
+      function renderCal() {
+        const y = calDate.getFullYear(), m = calDate.getMonth();
+        monthLabel.textContent = `${y}年${m+1}月`;
+        const first = new Date(y, m, 1);
+        let startDay = first.getDay() - 1; if (startDay < 0) startDay = 6;
+        const daysInMonth = new Date(y, m+1, 0).getDate();
+        const daysInPrev = new Date(y, m, 0).getDate();
+        grid.innerHTML = "";
+        // prev month
+        for (let i = startDay - 1; i >= 0; i--) {
+          const btn = document.createElement("button");
+          btn.className = "cal-day other-month";
+          btn.textContent = daysInPrev - i;
+          grid.appendChild(btn);
+        }
+        // current month
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const btn = document.createElement("button");
+          btn.className = "cal-day";
+          btn.textContent = d;
+          const ds = `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+          if (ds === todayStr) btn.classList.add("today");
+          if (ds === selectedDate) btn.classList.add("selected");
+          btn.onclick = () => { selectedDate = ds; $("#input-date").value = ds; updateDateDisplay(ds); renderCal(); };
+          grid.appendChild(btn);
+        }
+        // next month fill
+        const total = startDay + daysInMonth;
+        const rem = total % 7 === 0 ? 0 : 7 - (total % 7);
+        for (let i = 1; i <= rem; i++) {
+          const btn = document.createElement("button");
+          btn.className = "cal-day other-month";
+          btn.textContent = i;
+          grid.appendChild(btn);
+        }
+      }
+
+      $("#date-picker-trigger").addEventListener("click", () => { calDate = new Date(selectedDate); renderCal(); modal.hidden = false; });
+      $("#calendar-close").addEventListener("click", () => { modal.hidden = true; });
+      modal.addEventListener("click", e => { if (e.target === modal) modal.hidden = true; });
+      $("#cal-prev").addEventListener("click", () => { calDate.setMonth(calDate.getMonth()-1); renderCal(); });
+      $("#cal-next").addEventListener("click", () => { calDate.setMonth(calDate.getMonth()+1); renderCal(); });
+      $("#cal-today").addEventListener("click", () => { selectedDate = todayStr; calDate = new Date(today); $("#input-date").value = selectedDate; updateDateDisplay(selectedDate); renderCal(); });
+    })();
+
     // 更新今日信息
     const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
     const todayInfo = $("#today-info");

@@ -41,9 +41,13 @@
               </div>
             </div>
             <div class="card-divider"></div>
-            <div class="card-row">
+            <div class="card-row clickable" id="date-picker-trigger">
               <span class="card-label">日期</span>
-              <input type="date" id="input-date" class="card-input">
+              <div class="card-right">
+                <span class="card-value" id="date-display">2026年5月15日</span>
+                <svg class="icon-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              </div>
+              <input type="date" id="input-date" class="card-input" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
             </div>
             <div class="card-divider"></div>
             <div class="card-row clickable" id="btn-model-config">
@@ -365,6 +369,31 @@
             <button class="btn-qr" id="btn-xhs-load-qr">加载二维码</button>
             <button class="btn-qr btn-qr-outline" id="btn-xhs-check">检查登录状态</button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 自定义日历弹窗 -->
+  <div id="calendar-modal" class="modal-overlay" hidden>
+    <div class="modal-sheet" style="max-height:420px;">
+      <div class="sheet-header">
+        <button class="sheet-close" id="calendar-close">完成</button>
+        <span class="sheet-title">选择日期</span>
+        <span class="sheet-spacer"></span>
+      </div>
+      <div class="sheet-body" style="padding:16px;">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" id="cal-prev">‹</button>
+          <span class="cal-month" id="cal-month">2026年5月</span>
+          <button class="cal-nav-btn" id="cal-next">›</button>
+        </div>
+        <div class="cal-weekdays">
+          <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div style="display:flex;justify-content:center;margin-top:12px;">
+          <button class="cal-today-btn" id="cal-today">今天</button>
         </div>
       </div>
     </div>
