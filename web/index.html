@@ -6,14 +6,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>AI 日报</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=1778841200">
 </head>
 <body>
 
   <div id="main-view" class="app-shell">
     <!-- ====== 顶部导航 ====== -->
-    <header class="app-header">
-      <h1 class="app-title">AI 日报</h1>
+    <header class="app-header" style="display:none;">
+      <h1 class="app-title" id="page-title">AI 日报</h1>
       <div class="header-actions">
         <span class="server-dot" id="server-status" title="服务器状态">●</span>
       </div>
@@ -28,11 +28,11 @@
 
           <!-- 概览区域 -->
           <div class="hero-greeting">
-            <h2 class="greeting-title" id="greeting-title">下午好 👋</h2>
+            <h2 class="greeting-title" id="greeting-title">下午好 <span id="greeting-icon"></span></h2>
             <p class="greeting-sub">每日 AI 热点，一键生成精美卡片</p>
           </div>
 
-          <div class="card">
+          <div class="card card-tinted">
             <div class="card-row" style="padding:14px 16px;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="flex-shrink:0;"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>
               <div style="margin-left:10px;flex:1;">
@@ -50,6 +50,14 @@
               <input type="date" id="input-date" class="card-input" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
             </div>
           </div>
+
+          <nav class="func-switcher" id="func-switcher">
+            <button class="func-tab active" data-func="daily">AI 日报</button>
+            <button class="func-tab" data-func="lang">学习</button>
+          </nav>
+
+          <!-- ====== 功能区：AI 日报 ====== -->
+          <div id="func-daily" class="func-content">
 
           <div class="card">
             <div class="card-row clickable" id="btn-template-text" style="cursor:pointer;">
@@ -73,34 +81,34 @@
             <p class="progress-text" id="progress-text"></p>
           </div>
 
-        </div>
-      </section>
-
-      <!-- Page 2: 图片预览 -->
-      <section class="tab-page" id="page-preview">
-        <div class="page-scroll">
-          <div class="hero-greeting hero-compact">
-            <h2 class="greeting-title">预览生成结果</h2>
-            <p class="greeting-sub">查看日报卡片效果，长按保存</p>
+          <!-- 装饰提示卡片 -->
+          <div class="card" style="margin-top:20px;text-align:center;padding:24px 16px;">
+            <img src="img/ai-robot.png" alt="AI 机器人" style="width:64px;height:64px;opacity:0.85;margin-bottom:8px;" loading="lazy">
+            <p style="font-size:14px;color:var(--text-secondary);line-height:1.6;">每天 AI 领域都在发生新变化<br>点击「生成日报」获取今日精选资讯</p>
           </div>
+
+          <div class="section-header" style="margin-top:24px;">
+            <span>历史日报</span>
+            <button class="section-action" id="btn-clear-history">清空</button>
+          </div>
+          <div class="card">
+            <div id="history-list" class="history-list">
+              <p class="card-empty">加载中...</p>
+            </div>
+          </div>
+
           <div id="preview-body" class="preview-body">
             <div class="empty-state">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#8E8E93" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 18v-4"/><path d="M14 18v-6"/></svg>
+              <img src="img/ai-doc.png" alt="文档查询" style="width:88px;height:88px;opacity:0.8;margin-bottom:12px;" loading="lazy">
               <p class="empty-title">暂无内容</p>
               <p class="empty-desc">选择日期并生成日报</p>
             </div>
           </div>
-        </div>
-      </section>
 
-      <!-- Page 3: 语言学习 -->
-      <section class="tab-page" id="page-lang">
-        <div class="page-scroll">
+          </div><!-- /func-daily -->
 
-          <div class="hero-greeting hero-compact">
-            <h2 class="greeting-title">语言学习 📚</h2>
-            <p class="greeting-sub">AI 生成每日词汇卡片，轻松积累</p>
-          </div>
+          <!-- ====== 功能区：学习 ====== -->
+          <div id="func-lang" class="func-content" style="display:none;">
 
           <div class="card">
             <div class="card-row">
@@ -144,6 +152,9 @@
           </div>
 
           <div class="card" style="margin-top:16px;">
+            <div style="text-align:center;padding:20px 16px 8px;">
+              <img src="img/ai-tutorial.png" alt="AI 教程" style="width:72px;height:72px;opacity:0.85;" loading="lazy">
+            </div>
             <div class="card-section-title">使用说明</div>
             <div class="card-desc">
               <p>1. 选择语言和难度级别</p>
@@ -153,19 +164,26 @@
             </div>
           </div>
 
+          </div><!-- /func-lang -->
+
         </div>
       </section>
+
+
+
+
 
       <!-- Page 4: 小红书 -->
       <section class="tab-page" id="page-xhs">
         <div class="page-scroll">
 
           <div class="hero-greeting hero-compact">
-            <h2 class="greeting-title">小红书发布 📱</h2>
-            <p class="greeting-sub">一键将日报存为小红书草稿</p>
+            <h2 class="greeting-title">小红书发布 <span class="title-icon" data-icon="titlePhone"></span></h2>
+            <p class="greeting-sub">将日报发布到小红书</p>
           </div>
 
-          <div class="card">
+          <!-- 登录状态卡片 -->
+          <div class="card" id="xhs-login-card">
             <div class="card-row">
               <span class="card-label">登录状态</span>
               <div class="card-right">
@@ -173,26 +191,88 @@
                 <span class="card-value" id="xhs-info">检查中...</span>
               </div>
             </div>
+            <button class="btn-link" id="btn-xhs-login" style="margin-top:8px;width:100%;text-align:center;padding:8px 0;border:1px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer;color:var(--text-secondary);font-size:13px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>登录 / 切换账号
+            </button>
           </div>
 
-          <div class="action-buttons">
-            <button class="btn-action btn-action-outline" id="btn-xhs-login">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <span>登录小红书</span>
-            </button>
-            <button class="btn-action btn-action-primary" id="btn-xhs-draft" disabled>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+          <!-- 发布内容编辑 -->
+          <div class="section-header">发布内容</div>
+          <div class="card">
+            <div class="card-row">
+              <span class="card-label">选择日期</span>
+              <input type="date" id="xhs-date-pick" class="date-input" style="font-size:14px;">
+            </div>
+            <div style="margin-top:12px;">
+              <label class="card-label" style="display:block;margin-bottom:6px;">标题</label>
+              <input type="text" id="xhs-title" class="login-input" placeholder="自动生成标题（可自定义）" maxlength="20" style="width:100%;box-sizing:border-box;">
+              <span style="font-size:11px;color:var(--text-tertiary);">最多20字</span>
+            </div>
+            <div style="margin-top:12px;">
+              <label class="card-label" style="display:block;margin-bottom:6px;">正文</label>
+              <textarea id="xhs-content" class="login-textarea" placeholder="自动生成文案（可自定义）" rows="4" style="width:100%;box-sizing:border-box;font-size:14px;resize:vertical;"></textarea>
+            </div>
+            <div style="margin-top:12px;">
+              <label class="card-label" style="display:block;margin-bottom:6px;">标签</label>
+              <input type="text" id="xhs-tags" class="login-input" placeholder="AI日报, 人工智能, 科技" style="width:100%;box-sizing:border-box;">
+              <span style="font-size:11px;color:var(--text-tertiary);">用逗号分隔</span>
+            </div>
+          </div>
+
+          <!-- 图片预览 -->
+          <div class="section-header">图片预览</div>
+          <div class="card" id="xhs-images-card">
+            <div id="xhs-images-preview" style="display:flex;flex-wrap:wrap;gap:8px;min-height:60px;">
+              <p style="color:var(--text-tertiary);font-size:13px;margin:auto;">选择日期后加载图片</p>
+            </div>
+            <div style="margin-top:8px;font-size:12px;color:var(--text-tertiary);" id="xhs-images-info"></div>
+          </div>
+
+          <!-- 发布操作 -->
+          <div class="action-buttons" style="gap:10px;">
+            <button class="btn-action btn-action-outline" id="btn-xhs-draft" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
               <span>存草稿</span>
             </button>
+            <button class="btn-action btn-action-primary" id="btn-xhs-publish" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9Z"/></svg>
+              <span>直接发布</span>
+            </button>
           </div>
 
+          <!-- 发布进度 -->
+          <div id="xhs-progress" class="progress-wrap" style="display:none;">
+            <div class="progress-bar"><div class="progress-fill" id="xhs-progress-fill"></div></div>
+            <p class="progress-text" id="xhs-progress-text">准备中...</p>
+          </div>
+
+          <!-- 发布预览截图 -->
+          <div id="xhs-preview-wrap" style="display:none;margin-top:12px;">
+            <div class="section-header">发布截图</div>
+            <div class="card">
+              <img id="xhs-preview-img" style="width:100%;border-radius:8px;" alt="发布预览">
+              <p id="xhs-preview-msg" style="text-align:center;margin-top:8px;font-size:14px;font-weight:500;"></p>
+            </div>
+          </div>
+
+          <!-- 定时发布 -->
+          <div class="section-header">定时发布</div>
           <div class="card">
+            <div class="card-row">
+              <span class="card-label">发布时间</span>
+              <input type="datetime-local" id="xhs-schedule-time" class="date-input" style="font-size:14px;">
+            </div>
+            <p style="font-size:12px;color:var(--text-tertiary);margin-top:6px;">设置后点「直接发布」将在指定时间发布（留空=立即发布）</p>
+          </div>
+
+          <!-- 使用说明 -->
+          <div class="card" style="margin-top:12px;">
             <div class="card-section-title">使用说明</div>
             <div class="card-desc">
-              <p>1. 点击「登录小红书」扫码或导入 Cookie</p>
-              <p>2. 在「日报」页面生成日报图片</p>
-              <p>3. 点击「存草稿」保存到小红书草稿箱</p>
-              <p>4. 可在「设置」中开启定时自动存草稿</p>
+              <p>1. 登录小红书（扫码 / 短信 / Cookie导入）</p>
+              <p>2. 选择日期，自动加载对应日报图片和文案</p>
+              <p>3. 可自定义标题、正文和标签</p>
+              <p>4.「存草稿」保存到草稿箱 /「直接发布」立即发布</p>
             </div>
           </div>
 
@@ -204,7 +284,7 @@
         <div class="page-scroll">
 
           <div class="hero-greeting hero-compact">
-            <h2 class="greeting-title">设置 ⚙️</h2>
+            <h2 class="greeting-title">设置 <span class="title-icon" data-icon="titleGear"></span></h2>
             <p class="greeting-sub">管理服务器、定时任务和历史记录</p>
           </div>
 
@@ -264,15 +344,6 @@
           </div>
           <p class="section-footer" id="schedule-info">未启用</p>
 
-          <div class="section-header">
-            <span>历史日报</span>
-            <button class="section-action" id="btn-clear-history">清空</button>
-          </div>
-          <div class="card">
-            <div id="history-list" class="history-list">
-              <p class="card-empty">加载中...</p>
-            </div>
-          </div>
 
         </div>
       </section>
@@ -282,23 +353,15 @@
     <!-- ====== 底部 Tab 导航 ====== -->
     <nav class="tab-bar">
       <button class="tab-item active" data-page="home">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 18v-4"/><path d="M14 18v-6"/></svg>
+        <span class="nav-icon" data-icon="navReport"></span>
         <span>日报</span>
       </button>
-      <button class="tab-item" data-page="preview">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-        <span>预览</span>
-      </button>
-      <button class="tab-item" data-page="lang">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
-        <span>学习</span>
-      </button>
       <button class="tab-item" data-page="xhs">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        <span class="nav-icon" data-icon="navXhs"></span>
         <span>小红书</span>
       </button>
       <button class="tab-item" data-page="settings">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="nav-icon" data-icon="navSettings"></span>
         <span>设置</span>
       </button>
     </nav>
@@ -402,6 +465,7 @@
     </div>
   </div>
 
+  <script src="icons.js?v=1778841200"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
