@@ -35,6 +35,10 @@ const OUTPUT_DIR = resolve(__dirname, "../../output");
 
 const router = Router();
 
+// 定时发布任务存储
+const scheduledTasks = new Map(); // id -> { timer, date, title, postTime, status }
+
+
 // 启动登录（返回二维码截图）
 router.post("/login", authRequired, async (req, res) => {
   try {
@@ -108,7 +112,7 @@ router.get("/status", authRequired, async (req, res) => {
 // 发布到小红书
 router.post("/publish", authRequired, async (req, res) => {
   try {
-    const { date, draft = true, customTitle, customContent, customTags } = req.body;
+    const { date, draft = true, customTitle, customContent, customTags, postTime } = req.body;
 
     const now = new Date();
     const dateStr = date || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
@@ -134,6 +138,49 @@ router.post("/publish", authRequired, async (req, res) => {
     // 小红书限制每篇最多 18 张图片
     if (pngFiles.length > 18) {
       pngFiles.length = 18;
+    }
+
+    // 如果有定时发布时间且不是草稿，则延迟执行
+    if (postTime && !draft) {
+      const targetTime = new Date(postTime).getTime();
+      const now = Date.now();
+      const delay = targetTime - now;
+      if (delay < 60000) {
+        return res.status(400).json({ error: "定时时间必须至少在1分钟之后" });
+      }
+      const taskId = `xhs_${Date.now()}`;
+      const timer = setTimeout(async () => {
+        try {
+          console.log(`\n⏰ 定时发布触发: ${taskId}`);
+          const dateInfo2 = formatDateCN(dateStr);
+          const cached2 = getCache(dateStr);
+          const items2 = cached2?.items || cached2?.sections?.[0]?.items || [];
+          let t, c, tg;
+          if (customTitle) { t = customTitle; c = customContent || ""; tg = customTags || ["AI日报", "人工智能"]; }
+          else { const cap = generateXHSCaption(items2, dateInfo2); t = cap.title; c = cap.content; tg = cap.tags; }
+          const result = await publishToXHS({ imagePaths: pngFiles, title: t, content: c, tags: tg, draft: false });
+          scheduledTasks.get(taskId).status = "done";
+          scheduledTasks.get(taskId).result = result;
+          console.log(`   ✅ 定时发布完成: ${t}`);
+        } catch (err) {
+          scheduledTasks.get(taskId).status = "failed";
+          scheduledTasks.get(taskId).error = err.message;
+          console.error(`   ❌ 定时发布失败: ${err.message}`);
+        }
+      }, delay);
+      scheduledTasks.set(taskId, {
+        timer, date: dateStr, title: customTitle || "AI日报",
+        postTime, status: "waiting", imageCount: pngFiles.length,
+      });
+      const targetDate = new Date(postTime);
+      console.log(`\n⏰ 已设置定时发布: ${taskId}`);
+      console.log(`   目标时间: ${targetDate.toLocaleString("zh-CN")}`);
+      console.log(`   延迟: ${Math.round(delay / 60000)} 分钟`);
+      return res.json({
+        ok: true, scheduled: true, taskId,
+        postTime, delayMinutes: Math.round(delay / 60000),
+        message: `已设置定时发布，将在 ${targetDate.toLocaleString("zh-CN")} 自动发布`,
+      });
     }
 
     // 生成文案
@@ -174,6 +221,26 @@ router.post("/publish", authRequired, async (req, res) => {
       screenshot: err.screenshot || null,
     });
   }
+});
+
+// 查询定时任务
+router.get("/scheduled", authRequired, async (req, res) => {
+  const tasks = [];
+  for (const [id, t] of scheduledTasks) {
+    tasks.push({ id, date: t.date, title: t.title, postTime: t.postTime, status: t.status, imageCount: t.imageCount });
+  }
+  res.json({ ok: true, tasks });
+});
+
+// 取消定时任务
+router.delete("/scheduled/:id", authRequired, async (req, res) => {
+  const task = scheduledTasks.get(req.params.id);
+  if (!task) return res.status(404).json({ error: "任务不存在" });
+  if (task.status === "waiting") {
+    clearTimeout(task.timer);
+    task.status = "cancelled";
+  }
+  res.json({ ok: true, status: task.status });
 });
 
 // 关闭浏览器（清理资源）

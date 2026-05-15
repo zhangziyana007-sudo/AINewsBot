@@ -18,6 +18,7 @@
 import express from "express";
 import cors from "cors";
 import { resolve, dirname } from "node:path";
+import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import authRouter from "./routes/auth.js";
@@ -77,6 +78,36 @@ app.use("/api/schedule", scheduleRouter);
 app.use("/api/history", historyRouter);
 app.use("/api/xhs", xhsRouter);
 app.use("/api/language", languageRouter);
+
+// 日报图片列表 API
+app.get("/api/daily/images", (req, res) => {
+  const date = req.query.date;
+  if (!date) return res.status(400).json({ error: "缺少 date 参数" });
+  const dir = resolve(OUTPUT_DIR, date);
+  try {
+    const files = readdirSync(dir).filter(f => f.endsWith(".png")).sort();
+    res.json({ ok: true, images: files, count: files.length });
+  } catch {
+    res.json({ ok: true, images: [], count: 0 });
+  }
+});
+
+// 日报图片访问 API
+app.get("/api/daily/image/:date/:index", (req, res) => {
+  const { date, index } = req.params;
+  const dir = resolve(OUTPUT_DIR, date);
+  try {
+    const files = readdirSync(dir).filter(f => f.endsWith(".png")).sort();
+    const idx = parseInt(index, 10);
+    if (idx >= 0 && idx < files.length) {
+      res.sendFile(resolve(dir, files[idx]));
+    } else {
+      res.status(404).json({ error: "图片不存在" });
+    }
+  } catch {
+    res.status(404).json({ error: "未找到该日期的图片" });
+  }
+});
 
 // 健康检查
 app.get("/api/health", (req, res) => {

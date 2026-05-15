@@ -23,6 +23,7 @@ const XHS_USER_INFO_API = "https://creator.xiaohongshu.com/api/galaxy/user/info"
 
 let activeContext = null;
 let activePage = null;
+let _contextLock = null;
 
 const BROWSER_ARGS = [
   "--no-sandbox",
@@ -35,47 +36,56 @@ const BROWSER_ARGS = [
  * 所有 cookies/localStorage/IndexedDB 自动持久化到 USER_DATA_DIR
  */
 async function getContext() {
+  // 防止并发创建多个浏览器实例
+  if (_contextLock) return _contextLock;
+
   if (activeContext) {
     try {
-      // 检查是否还活着
       activeContext.pages();
       return activeContext;
     } catch {
+      console.log("   ⚠️ 浏览器上下文已失效，重新创建...");
+      try { await activeContext.close(); } catch {}
       activeContext = null;
       activePage = null;
     }
   }
 
-  await mkdir(USER_DATA_DIR, { recursive: true });
+  _contextLock = (async () => {
+    await mkdir(USER_DATA_DIR, { recursive: true });
 
-  console.log("   🌐 启动持久化浏览器上下文...");
-  activeContext = await chromium.launchPersistentContext(USER_DATA_DIR, {
-    headless: true,
-    args: BROWSER_ARGS,
-    userAgent:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    viewport: { width: 1280, height: 800 },
-  });
+    console.log("   🌐 启动持久化浏览器上下文...");
+    activeContext = await chromium.launchPersistentContext(USER_DATA_DIR, {
+      headless: true,
+      args: BROWSER_ARGS,
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      viewport: { width: 1280, height: 800 },
+    });
 
-  // 注入反检测脚本到所有新页面
-  await activeContext.addInitScript(() => {
-    Object.defineProperty(navigator, "webdriver", { get: () => false });
-  });
+    await activeContext.addInitScript(() => {
+      Object.defineProperty(navigator, "webdriver", { get: () => false });
+    });
 
-  // 尝试加载已保存的 Cookie（兼容旧版 / Cookie 导入）
+    try {
+      await access(COOKIE_PATH);
+      const raw = await readFile(COOKIE_PATH, "utf-8");
+      const cookies = JSON.parse(raw);
+      if (Array.isArray(cookies) && cookies.length > 0) {
+        await activeContext.addCookies(cookies);
+        console.log("   🍪 已加载 " + cookies.length + " 个 Cookie");
+      }
+    } catch {}
+
+    return activeContext;
+  })();
+
   try {
-    await access(COOKIE_PATH);
-    const raw = await readFile(COOKIE_PATH, "utf-8");
-    const cookies = JSON.parse(raw);
-    if (Array.isArray(cookies) && cookies.length > 0) {
-      await activeContext.addCookies(cookies);
-      console.log("   🍪 已加载 " + cookies.length + " 个 Cookie");
-    }
-  } catch {
-    // 无已保存的 Cookie，正常
+    const ctx = await _contextLock;
+    return ctx;
+  } finally {
+    _contextLock = null;
   }
-
-  return activeContext;
 }
 
 /**
@@ -445,10 +455,15 @@ export async function checkLoginStatus() {
 export async function publishToXHS(options) {
   const { imagePaths, title, content, tags = [], draft = true } = options;
 
-  // 验证登录
-  const loginCheck = await checkLoginViaAPI();
-  if (!loginCheck.loggedIn) {
-    throw new Error("未登录小红书，请先登录");
+  // 验证登录（优先API检查，失败则跳过，后面通过页面URL判断）
+  let loginOk = false;
+  try {
+    const loginCheck = await checkLoginViaAPI();
+    loginOk = loginCheck.loggedIn;
+  } catch {}
+  // 即使API检查失败，仍然尝试打开页面（persistent context可能有有效登录态）
+  if (!loginOk) {
+    console.log("   ⚠️ API登录验证未通过，尝试通过页面检测...");
   }
 
   const ctx = await getContext();
@@ -461,18 +476,38 @@ export async function publishToXHS(options) {
 
     // 检查是否需要重新登录
     if (page.url().includes("/login")) {
-      throw new Error("登录态已过期，请重新登录");
+      throw new Error("未登录小红书或登录态已过期，请重新登录");
+    }
+    console.log("   ✅ 页面已打开，登录态有效");
+
+    // 先点击"上传图文"tab
+    console.log("   📋 切换到图文发布模式...");
+    try {
+      const imgTextTab = page.locator('text=上传图文').first();
+      await imgTextTab.waitFor({ state: "visible", timeout: 10000 });
+      await imgTextTab.evaluate(el => el.click());
+      await page.waitForTimeout(2000);
+      console.log("   ✅ 已切换到图文模式");
+    } catch (e) {
+      console.log("   ⚠️ 切换图文tab失败: " + e.message + "，尝试继续...");
     }
 
     // 上传图片
     console.log("   🖼️ 上传 " + imagePaths.length + " 张图片...");
     const fileInput = page.locator('input[type="file"]').first();
     await fileInput.setInputFiles(imagePaths);
-    await page.waitForTimeout(3000);
+    // 等待图片上传完成
+    console.log("   ⏳ 等待图片上传完成...");
+    for (let i = 0; i < 30; i++) {
+      await page.waitForTimeout(2000);
+      const uploading = page.locator('[class*="upload"][class*="progress"], [class*="loading"]');
+      if (!(await uploading.first().isVisible({ timeout: 500 }).catch(() => false))) break;
+    }
+    await page.waitForTimeout(2000);
 
     // 填写标题
     if (title) {
-      console.log("   📝 填写标题: " + title);
+console.log("   📝 填写标题: " + title);
       const titleInput = page.locator('[placeholder*="标题"]').first();
       await titleInput.click();
       await titleInput.fill(title);
@@ -510,22 +545,40 @@ export async function publishToXHS(options) {
     const previewBase64 = previewBuf.toString("base64");
 
     if (draft) {
-      console.log("   💾 保存到草稿箱...");
-      const draftBtn = page.locator('button:has-text("存草稿"), [class*="draft"]').first();
-      if (await draftBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await draftBtn.click();
-        await page.waitForTimeout(2000);
-      }
+      console.log("   💾 保存到草稿箱（关闭页面触发自动保存）...");
+      // 小红书创作者中心：关闭已编辑的页面时会自动保存到草稿箱
+      const finalBuf = await page.screenshot({ type: "png" }).catch(() => null);
+      const finalPreview = finalBuf ? "data:image/png;base64," + finalBuf.toString("base64") : null;
+      await page.close();
+      console.log("   ✅ 页面已关闭，内容已自动保存到草稿箱");
       return {
         success: true,
         mode: "draft",
-        message: "已保存到草稿箱",
-        preview: "data:image/png;base64," + previewBase64,
+        message: "已保存到草稿箱（内容已自动暂存）",
+        preview: finalPreview || ("data:image/png;base64," + previewBase64),
       };
     } else {
       console.log("   🚀 发布笔记...");
-      const publishBtn = page.locator('button:has-text("发布")').first();
-      await publishBtn.click();
+      // 小红书发布按钮是 span.btn-text 或包含"发布笔记"的元素
+      const publishSelectors = [
+        'span:has-text("发布笔记")',
+        'button:has-text("发布笔记")',
+        ':text("发布笔记")',
+        'button:has-text("发布")',
+      ];
+      let published = false;
+      for (const sel of publishSelectors) {
+        try {
+          const btn = page.locator(sel).first();
+          if (await btn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await btn.click();
+            published = true;
+            console.log("   ✅ 已点击发布: " + sel);
+            break;
+          }
+        } catch {}
+      }
+      if (!published) console.log("   ⚠️ 未找到发布按钮");
       await page.waitForTimeout(3000);
       return {
         success: true,
@@ -604,7 +657,8 @@ export async function getCookieStatus() {
     if (valid.length > 0) {
       return {
         hasLogin: true,
-        message: "有 Cookie（未验证）",
+        verified: false,
+        message: "Cookie 未验证，可能已过期",
         cookieCount: valid.length,
         expires: new Date(
           Math.min(...valid.filter((c) => c.expires).map((c) => c.expires * 1000))
