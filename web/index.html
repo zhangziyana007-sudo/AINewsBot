@@ -32,34 +32,20 @@
             <p class="greeting-sub">每日 AI 热点，一键生成精美卡片</p>
           </div>
 
-          <div class="info-banner">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>
-            <div class="info-banner-text">
-              <span class="info-main" id="today-info">今天是个好日子</span>
-              <span class="info-sub">选择日期，开始生成日报</span>
-            </div>
-          </div>
-
-          <div class="stat-cards">
-            <div class="stat-card">
-              <span class="stat-label">已生成</span>
-              <span class="stat-number" id="stat-total">0</span>
-              <span class="stat-unit">篇日报</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">当前模型</span>
-              <span class="stat-model" id="stat-model">MiMo</span>
-            </div>
-          </div>
-
           <div class="card">
+            <div class="card-row" style="padding:14px 16px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="flex-shrink:0;"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>
+              <div style="margin-left:10px;flex:1;">
+                <span class="info-main" id="today-info" style="display:block;font-size:15px;font-weight:600;color:var(--text);">今天是个好日子</span>
+                <span class="info-sub" style="display:block;font-size:13px;color:var(--text-secondary);margin-top:2px;">已生成 <b id="stat-total">0</b> 篇 · <span id="stat-model">MiMo</span></span>
+              </div>
+            </div>
+            <div class="card-divider"></div>
             <div class="card-row">
               <span class="card-label">日期</span>
               <input type="date" id="input-date" class="card-input">
             </div>
-          </div>
-
-          <div class="card">
+            <div class="card-divider"></div>
             <div class="card-row clickable" id="btn-model-config">
               <span class="card-label">AI 模型</span>
               <div class="card-right">
