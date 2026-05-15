@@ -1,39 +1,39 @@
 /*
- * AI 日报 — macOS 风格 UI
- * Apple Design Language: 浅色系 + SF 字体 + 精致阴影 + vibrancy 毛玻璃
+ * AI 日报 — PlantCare 清新绿植风格 UI
+ * 清新自然 / 浅绿色系 / 圆角卡片 / 温和阴影
  */
 
 :root {
-  --bg: #E8E8ED;
-  --bg-secondary: #F2F2F7;
-  --surface: rgba(255, 255, 255, 0.6);
-  --surface-hover: rgba(255, 255, 255, 0.8);
-  --surface-border: rgba(0, 0, 0, 0.06);
-  --glass: rgba(255, 255, 255, 0.5);
-  --glass-border: rgba(255, 255, 255, 0.6);
-  --text: #1D1D1F;
-  --text-secondary: #6E6E73;
-  --text-tertiary: #AEAEB2;
-  --border: rgba(0, 0, 0, 0.1);
-  --border-light: rgba(0, 0, 0, 0.06);
-  --accent: #007AFF;
-  --accent-hover: #0062CC;
-  --accent-light: rgba(0, 122, 255, 0.08);
-  --accent-glow: rgba(0, 122, 255, 0.15);
-  --cyan: #5AC8FA;
-  --cyan-light: rgba(90, 200, 250, 0.1);
-  --danger: #FF3B30;
-  --success: #34C759;
-  --warning: #FF9500;
-  --radius: 12px;
-  --radius-sm: 8px;
+  --bg: #F0F5EC;
+  --bg-secondary: #E8F0E4;
+  --surface: rgba(255, 255, 255, 0.7);
+  --surface-hover: rgba(255, 255, 255, 0.9);
+  --surface-border: rgba(45, 90, 61, 0.06);
+  --glass: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --text: #1A2E1A;
+  --text-secondary: #6B7B6B;
+  --text-tertiary: #A0B0A0;
+  --border: rgba(45, 90, 61, 0.1);
+  --border-light: rgba(45, 90, 61, 0.06);
+  --accent: #2D5A3D;
+  --accent-hover: #1E4A2E;
+  --accent-light: rgba(45, 90, 61, 0.08);
+  --accent-glow: rgba(45, 90, 61, 0.15);
+  --cyan: #7BA89D;
+  --cyan-light: rgba(123, 168, 157, 0.1);
+  --danger: #C45A5A;
+  --success: #4A8B5C;
+  --warning: #C4956A;
+  --radius: 16px;
+  --radius-sm: 12px;
   --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Noto Sans SC', sans-serif;
-  --header-h: 52px;
-  --tabbar-h: 56px;
+  --header-h: 56px;
+  --tabbar-h: 60px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-sm: 0 1px 3px rgba(45, 90, 61, 0.06), 0 1px 2px rgba(45, 90, 61, 0.04);
+  --shadow-md: 0 4px 12px rgba(45, 90, 61, 0.08), 0 1px 3px rgba(45, 90, 61, 0.04);
+  --shadow-lg: 0 12px 40px rgba(45, 90, 61, 0.12), 0 4px 12px rgba(45, 90, 61, 0.06);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -65,7 +65,7 @@ html, body {
     border-right: 1px solid var(--border-light);
     box-shadow: var(--shadow-lg);
   }
-  body { background: linear-gradient(180deg, #D4D4DC 0%, #BFBFC8 100%); }
+  body { background: linear-gradient(180deg, #D8E8D0 0%, #C5D8BC 100%); }
 }
 
 /* ====== Header ====== */
@@ -565,7 +565,7 @@ html, body {
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background: #E9E9EA;
+  background: #C8D8C0;
   border-radius: 31px;
   transition: 0.3s;
 }
@@ -593,7 +593,7 @@ html, body {
   justify-content: space-around;
   height: var(--tabbar-h);
   padding-bottom: var(--safe-bottom);
-  background: rgba(249, 249, 249, 0.7);
+  background: rgba(240, 245, 236, 0.8);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-top: 0.5px solid var(--glass-border);
@@ -615,12 +615,14 @@ html, body {
   color: var(--text-tertiary);
   font-size: 10px;
   font-family: var(--font);
-  transition: color 0.2s;
+  transition: all 0.2s;
   -webkit-tap-highlight-color: transparent;
+  border-radius: 16px;
 }
 
 .tab-item.active {
   color: var(--accent);
+  background: var(--accent-light);
 }
 
 .tab-item svg {
@@ -649,7 +651,7 @@ html, body {
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
-  background: rgba(242, 242, 247, 0.75);
+  background: rgba(240, 245, 236, 0.85);
   backdrop-filter: blur(40px) saturate(200%);
   -webkit-backdrop-filter: blur(40px) saturate(200%);
   border-radius: 20px 20px 0 0;
