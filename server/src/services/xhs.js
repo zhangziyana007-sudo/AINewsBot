@@ -453,7 +453,7 @@ export async function checkLoginStatus() {
  * 发布笔记到小红书（或保存到草稿）
  */
 export async function publishToXHS(options) {
-  const { imagePaths, title, content, tags = [], draft = true } = options;
+  const { imagePaths, title, content, tags = [], draft = true, postTime = null } = options;
 
   // 验证登录（优先API检查，失败则跳过，后面通过页面URL判断）
   let loginOk = false;
@@ -556,6 +556,64 @@ console.log("   📝 填写标题: " + title);
         mode: "draft",
         message: "已保存到草稿箱（内容已自动暂存）",
         preview: finalPreview || ("data:image/png;base64," + previewBase64),
+      };
+    } else if (postTime) {
+      // 原生定时发布：打开定时开关 → 设置时间 → 点击定时发布按钮
+      console.log("   ⏰ 设置定时发布: " + postTime);
+
+      // 点击定时发布开关
+      const switchEl = page.locator('.post-time-wrapper .d-switch-simulator').first();
+      await switchEl.evaluate(el => el.click());
+      await page.waitForTimeout(2000);
+
+      // 设置时间（格式: YYYY-MM-DD HH:mm）
+      const timeInput = page.locator('.date-picker-container input.d-text').first();
+      await timeInput.waitFor({ state: "visible", timeout: 5000 });
+      await timeInput.click({ clickCount: 3 }); // 全选
+      await timeInput.fill(postTime);
+      await timeInput.press("Enter");
+      await page.waitForTimeout(1000);
+
+      // 点击"定时发布"按钮（开关打开后，原来的"发布笔记"按钮变成"定时发布"）
+      const scheduleSelectors = [
+        'span:has-text("定时发布")',
+        'button:has-text("定时发布")',
+        '.publishBtn span:has-text("定时发布")',
+      ];
+      let scheduled = false;
+      for (const sel of scheduleSelectors) {
+        try {
+          const btn = page.locator(sel).first();
+          if (await btn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            // 排除开关区域的"定时发布"文字
+            const isSwitch = await btn.evaluate(el => {
+              return !!el.closest('.post-time-switch-container') || el.classList.contains('has-tips');
+            });
+            if (isSwitch) continue;
+            await btn.click();
+            scheduled = true;
+            console.log("   ✅ 已点击定时发布: " + sel);
+            break;
+          }
+        } catch {}
+      }
+      if (!scheduled) {
+        // 如果上面没找到，尝试找按钮区域（btn-text类的span）
+        const btnText = page.locator('.btn-text, .publishBtn').first();
+        if (await btnText.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await btnText.click();
+          scheduled = true;
+          console.log("   ✅ 已点击发布按钮");
+        }
+      }
+      if (!scheduled) console.log("   ⚠️ 未找到定时发布按钮");
+      await page.waitForTimeout(3000);
+      return {
+        success: true,
+        mode: "scheduled",
+        message: "已设置定时发布: " + postTime,
+        scheduledTime: postTime,
+        preview: "data:image/png;base64," + previewBase64,
       };
     } else {
       console.log("   🚀 发布笔记...");

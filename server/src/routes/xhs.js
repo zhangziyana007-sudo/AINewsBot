@@ -140,47 +140,37 @@ router.post("/publish", authRequired, async (req, res) => {
       pngFiles.length = 18;
     }
 
-    // 如果有定时发布时间且不是草稿，则延迟执行
+    // 如果有定时发布时间，使用小红书原生定时发布功能
     if (postTime && !draft) {
-      const targetTime = new Date(postTime).getTime();
-      const now = Date.now();
-      const delay = targetTime - now;
-      if (delay < 60000) {
-        return res.status(400).json({ error: "定时时间必须至少在1分钟之后" });
-      }
-      const taskId = `xhs_${Date.now()}`;
-      const timer = setTimeout(async () => {
-        try {
-          console.log(`\n⏰ 定时发布触发: ${taskId}`);
-          const dateInfo2 = formatDateCN(dateStr);
-          const cached2 = getCache(dateStr);
-          const items2 = cached2?.items || cached2?.sections?.[0]?.items || [];
-          let t, c, tg;
-          if (customTitle) { t = customTitle; c = customContent || ""; tg = customTags || ["AI日报", "人工智能"]; }
-          else { const cap = generateXHSCaption(items2, dateInfo2); t = cap.title; c = cap.content; tg = cap.tags; }
-          const result = await publishToXHS({ imagePaths: pngFiles, title: t, content: c, tags: tg, draft: false });
-          scheduledTasks.get(taskId).status = "done";
-          scheduledTasks.get(taskId).result = result;
-          console.log(`   ✅ 定时发布完成: ${t}`);
-        } catch (err) {
-          scheduledTasks.get(taskId).status = "failed";
-          scheduledTasks.get(taskId).error = err.message;
-          console.error(`   ❌ 定时发布失败: ${err.message}`);
-        }
-      }, delay);
-      scheduledTasks.set(taskId, {
-        timer, date: dateStr, title: customTitle || "AI日报",
-        postTime, status: "waiting", imageCount: pngFiles.length,
-      });
+      // 格式化为 YYYY-MM-DD HH:mm（小红书日期选择器格式）
       const targetDate = new Date(postTime);
-      console.log(`\n⏰ 已设置定时发布: ${taskId}`);
-      console.log(`   目标时间: ${targetDate.toLocaleString("zh-CN")}`);
-      console.log(`   延迟: ${Math.round(delay / 60000)} 分钟`);
-      return res.json({
-        ok: true, scheduled: true, taskId,
-        postTime, delayMinutes: Math.round(delay / 60000),
-        message: `已设置定时发布，将在 ${targetDate.toLocaleString("zh-CN")} 自动发布`,
+      const formattedTime = targetDate.getFullYear() + "-" +
+        String(targetDate.getMonth() + 1).padStart(2, "0") + "-" +
+        String(targetDate.getDate()).padStart(2, "0") + " " +
+        String(targetDate.getHours()).padStart(2, "0") + ":" +
+        String(targetDate.getMinutes()).padStart(2, "0");
+
+      // 生成文案
+      const dateInfo = formatDateCN(dateStr);
+      const cached = getCache(dateStr);
+      const items = cached?.items || cached?.sections?.[0]?.items || [];
+      let title, content, tags;
+      if (customTitle) {
+        title = customTitle; content = customContent || ""; tags = customTags || ["AI日报", "人工智能"];
+      } else {
+        const caption = generateXHSCaption(items, dateInfo);
+        title = caption.title; content = caption.content; tags = caption.tags;
+      }
+
+      console.log(`\n⏰ 小红书原生定时发布 (${dateStr})`);
+      console.log(`   标题: ${title}`);
+      console.log(`   定时: ${formattedTime}`);
+
+      const result = await publishToXHS({
+        imagePaths: pngFiles, title, content, tags, draft: false, postTime: formattedTime,
       });
+
+      return res.json({ ok: true, ...result, title, imageCount: pngFiles.length, scheduledTime: formattedTime });
     }
 
     // 生成文案
