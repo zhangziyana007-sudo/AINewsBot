@@ -444,7 +444,27 @@ export async function checkLoginStatus() {
     };
   }
 
-  return { loggedIn: false, message: "请先启动登录流程" };
+  // 尝试打开创作者中心页面验证持久化登录态
+  try {
+    console.log("   🔍 尝试通过页面验证持久化登录态...");
+    const ctx = await getContext();
+    const testPage = await ctx.newPage();
+    await testPage.goto("https://creator.xiaohongshu.com", { waitUntil: "domcontentloaded", timeout: 15000 });
+    await testPage.waitForTimeout(3000);
+    const url = testPage.url();
+    const isLoggedIn = !url.includes("/login") && url.includes("xiaohongshu");
+    await testPage.close();
+    if (isLoggedIn) {
+      await saveContextCookies();
+      console.log("   ✅ 持久化登录态有效");
+      return { loggedIn: true, message: "已登录（持久化会话）" };
+    }
+    console.log("   ⚠️ 持久化登录态已过期");
+  } catch (e) {
+    console.log("   ⚠️ 页面验证失败: " + e.message);
+  }
+
+  return { loggedIn: false, message: "未登录，请扫码登录" };
 }
 
 // ===================== 发布相关 =====================
@@ -713,6 +733,21 @@ export async function getCookieStatus() {
     const now = Date.now() / 1000;
     const valid = cookies.filter((c) => !c.expires || c.expires > now);
     if (valid.length > 0) {
+      // Cookie文件存在，尝试页面验证是否真正有效
+      try {
+        const ctx = await getContext();
+        const testPage = await ctx.newPage();
+        await testPage.goto("https://creator.xiaohongshu.com", { waitUntil: "domcontentloaded", timeout: 15000 });
+        await testPage.waitForTimeout(3000);
+        const url = testPage.url();
+        const isLoggedIn = !url.includes("/login") && url.includes("xiaohongshu");
+        await testPage.close();
+        if (isLoggedIn) {
+          await saveContextCookies();
+          return { hasLogin: true, message: "已登录（自动识别）", userName: "已登录" };
+        }
+      } catch {}
+      // 页面验证失败，降级返回未验证状态
       return {
         hasLogin: true,
         verified: false,
@@ -722,6 +757,21 @@ export async function getCookieStatus() {
           Math.min(...valid.filter((c) => c.expires).map((c) => c.expires * 1000))
         ).toLocaleString("zh-CN"),
       };
+    }
+  } catch {}
+
+  // 无Cookie文件，尝试页面验证持久化登录态
+  try {
+    const ctx = await getContext();
+    const testPage = await ctx.newPage();
+    await testPage.goto("https://creator.xiaohongshu.com", { waitUntil: "domcontentloaded", timeout: 15000 });
+    await testPage.waitForTimeout(3000);
+    const url = testPage.url();
+    const isLoggedIn = !url.includes("/login") && url.includes("xiaohongshu");
+    await testPage.close();
+    if (isLoggedIn) {
+      await saveContextCookies();
+      return { hasLogin: true, message: "已登录（自动识别）", userName: "已登录" };
     }
   } catch {}
 
