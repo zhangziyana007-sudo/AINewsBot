@@ -1117,19 +1117,18 @@
   if (xhsModalClose) xhsModalClose.addEventListener("click", () => { xhsModal.hidden = true; });
 
   // ---- 发布/存草稿 通用函数 ----
-  async function xhsDoPublish(isDraft) {
+  async function xhsDoPublish(isDraft, isScheduled = false) {
     const date = xhsDatePick?.value;
     if (!date) return alert("请先选择日期");
 
     const customTitle = xhsTitleInput?.value?.trim() || "";
     const customContent = xhsContentArea?.value?.trim() || "";
     const customTags = xhsTagsInput?.value?.trim() ? xhsTagsInput.value.split(/[,，]/).map(t => t.trim()).filter(Boolean) : [];
-    const postTime = $("#xhs-schedule-time")?.value || "";
+    const postTime = isScheduled ? ($("#xhs-schedule-time")?.value || "") : "";
 
-    const btn = isDraft ? btnXhsDraft : btnXhsPublish;
-    const origHTML = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = `<span>${isDraft ? "保存中..." : "发布中..."}</span>`;
+    const btn = isDraft ? btnXhsDraft : (isScheduled ? $("#btn-xhs-schedule") : btnXhsPublish);
+    const origHTML = btn?.innerHTML || "";
+    if (btn) { btn.disabled = true; btn.innerHTML = isDraft ? "保存中..." : (isScheduled ? "设置中..." : "发布中..."); }
 
     // 显示进度
     if (xhsProgress) { xhsProgress.style.display = "block"; xhsProgressFill.style.width = "30%"; xhsProgressText.textContent = "正在连接小红书..."; }
@@ -1181,15 +1180,14 @@
       if (xhsProgressText) xhsProgressText.textContent = "失败: " + err.message;
       alert((isDraft ? "存草稿" : "发布") + "失败: " + err.message);
     } finally {
-      btn.disabled = false;
-      btn.innerHTML = origHTML;
+      if (btn) { btn.disabled = false; btn.innerHTML = origHTML; }
       setTimeout(() => { if (xhsProgress) xhsProgress.style.display = "none"; }, 3000);
     }
   }
 
   if (btnXhsDraft) btnXhsDraft.addEventListener("click", () => xhsDoPublish(true));
   if (btnXhsPublish) btnXhsPublish.addEventListener("click", () => {
-    if (!confirm("确定直接发布到小红书？")) return;
+    if (!confirm("确定立即发布？")) return;
     xhsDoPublish(false);
   });
 
@@ -1202,8 +1200,8 @@
       if (!timeVal) return alert("请先选择定时发布时间");
       const target = new Date(timeVal);
       if (target <= new Date()) return alert("定时时间必须在当前时间之后");
-      if (!confirm(`确定设置定时发布到 ${target.toLocaleString("zh-CN")}？`)) return;
-      xhsDoPublish(false);
+      if (!confirm(`定时发布到 ${target.toLocaleString("zh-CN")}？`)) return;
+      xhsDoPublish(false, true);
     });
   }
 

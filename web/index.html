@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>AI 日报</title>
-  <link rel="stylesheet" href="style.css?v=1778842500">
+  <link rel="stylesheet" href="style.css?v=1778843000">
 </head>
 <body>
 
@@ -179,81 +179,56 @@
 
           <div class="hero-greeting hero-compact">
             <h2 class="greeting-title">小红书发布 <span class="title-icon" data-icon="titlePhone"></span></h2>
-            <p class="greeting-sub">将日报发布到小红书</p>
+            <p class="greeting-sub">选日期 → 选方式 → 一键发布</p>
           </div>
 
-          <!-- 登录状态卡片 -->
-          <div class="card" id="xhs-login-card">
-            <div class="card-row">
-              <span class="card-label">登录状态</span>
-              <div class="card-right">
-                <span class="xhs-status-dot" id="xhs-status">●</span>
-                <span class="card-value" id="xhs-info">检查中...</span>
-              </div>
+          <!-- 登录状态 -->
+          <div class="card" id="xhs-login-card" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="xhs-status-dot" id="xhs-status" style="font-size:10px;">●</span>
+              <span id="xhs-info" style="font-size:13px;color:var(--text-secondary);">检查中...</span>
             </div>
-            <button class="btn-link" id="btn-xhs-login" style="margin-top:8px;width:100%;text-align:center;padding:8px 0;border:1px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer;color:var(--text-secondary);font-size:13px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>登录 / 切换账号
-            </button>
+            <button id="btn-xhs-login" style="padding:4px 12px;font-size:12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer;color:var(--text-secondary);">登录</button>
           </div>
 
-          <!-- 发布内容编辑 -->
-          <div class="section-header">发布内容</div>
-          <div class="card">
-            <div class="card-row">
-              <span class="card-label">选择日期</span>
-              <input type="date" id="xhs-date-pick" class="date-input" style="font-size:14px;">
+          <!-- 第一步：选日期 + 图片预览 -->
+          <div class="card" style="margin-top:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:15px;font-weight:600;color:var(--text-primary);">① 选择日期</span>
+              <input type="date" id="xhs-date-pick" class="date-input" style="font-size:14px;padding:6px 10px;">
             </div>
-            <div style="margin-top:12px;">
-              <label class="card-label" style="display:block;margin-bottom:6px;">标题</label>
-              <input type="text" id="xhs-title" class="login-input" placeholder="自动生成标题（可自定义）" maxlength="20" style="width:100%;box-sizing:border-box;">
-              <span style="font-size:11px;color:var(--text-tertiary);">最多20字</span>
+            <div id="xhs-images-preview" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;min-height:48px;">
+              <p style="color:var(--text-tertiary);font-size:12px;margin:auto;">选择日期后加载图片</p>
             </div>
-            <div style="margin-top:12px;">
-              <label class="card-label" style="display:block;margin-bottom:6px;">正文</label>
-              <textarea id="xhs-content" class="login-textarea" placeholder="自动生成文案（可自定义）" rows="4" style="width:100%;box-sizing:border-box;font-size:14px;resize:vertical;"></textarea>
-            </div>
-            <div style="margin-top:12px;">
-              <label class="card-label" style="display:block;margin-bottom:6px;">标签</label>
-              <input type="text" id="xhs-tags" class="login-input" placeholder="AI日报, 人工智能, 科技" style="width:100%;box-sizing:border-box;">
-              <span style="font-size:11px;color:var(--text-tertiary);">用逗号分隔</span>
-            </div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;" id="xhs-images-info"></div>
           </div>
 
-          <!-- 图片预览 -->
-          <div class="section-header">图片预览</div>
-          <div class="card" id="xhs-images-card">
-            <div id="xhs-images-preview" style="display:flex;flex-wrap:wrap;gap:8px;min-height:60px;">
-              <p style="color:var(--text-tertiary);font-size:13px;margin:auto;">选择日期后加载图片</p>
-            </div>
-            <div style="margin-top:8px;font-size:12px;color:var(--text-tertiary);" id="xhs-images-info"></div>
-          </div>
+          <!-- 第二步：选发布方式 + 一键操作 -->
+          <div class="card" style="margin-top:12px;">
+            <span style="font-size:15px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:12px;">② 发布</span>
 
-          <!-- 定时发布 -->
-          <div class="card" style="margin-bottom:12px;">
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-              <label style="font-size:13px;color:var(--text-secondary);white-space:nowrap;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-3px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <!-- 定时时间（只在选定时模式时需要） -->
+            <div id="xhs-schedule-row" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px 12px;background:var(--bg-secondary);border-radius:10px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="1.5" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <input type="datetime-local" id="xhs-schedule-time" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);font-size:13px;">
+            </div>
+
+            <!-- 三个操作按钮 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+              <button id="btn-xhs-draft" disabled style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border:1px solid var(--border);border-radius:12px;background:var(--surface);cursor:pointer;color:var(--text-secondary);font-size:12px;font-weight:500;transition:all 0.2s;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                存草稿
+              </button>
+              <button id="btn-xhs-schedule" disabled style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border:none;border-radius:12px;background:#7C3AED;cursor:pointer;color:#fff;font-size:12px;font-weight:500;transition:all 0.2s;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                 定时发布
-              </label>
-              <input type="datetime-local" id="xhs-schedule-time" style="flex:1;min-width:180px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-size:13px;">
-              <button class="btn-action btn-action-accent" id="btn-xhs-schedule" disabled style="padding:6px 16px;font-size:13px;background:#7C3AED;color:#fff;border:none;border-radius:8px;cursor:pointer;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                <span>定时发布</span>
+              </button>
+              <button id="btn-xhs-publish" disabled style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border:none;border-radius:12px;background:#059669;cursor:pointer;color:#fff;font-size:12px;font-weight:500;transition:all 0.2s;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9Z"/></svg>
+                立即发布
               </button>
             </div>
-            <p style="font-size:11px;color:var(--text-tertiary);margin-top:6px;">使用小红书原生定时发布，服务重启不影响</p>
-          </div>
-
-          <!-- 发布操作 -->
-          <div class="action-buttons" style="gap:10px;">
-            <button class="btn-action btn-action-outline" id="btn-xhs-draft" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
-              <span>存草稿</span>
-            </button>
-            <button class="btn-action btn-action-primary" id="btn-xhs-publish" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9Z"/></svg>
-              <span>直接发布</span>
-            </button>
+            <p style="font-size:11px;color:var(--text-tertiary);margin-top:8px;text-align:center;">标题·正文·标签 AI自动生成，也可在下方自定义</p>
           </div>
 
           <!-- 发布进度 -->
@@ -264,33 +239,32 @@
 
           <!-- 发布预览截图 -->
           <div id="xhs-preview-wrap" style="display:none;margin-top:12px;">
-            <div class="section-header">发布截图</div>
             <div class="card">
               <img id="xhs-preview-img" style="width:100%;border-radius:8px;" alt="发布预览">
               <p id="xhs-preview-msg" style="text-align:center;margin-top:8px;font-size:14px;font-weight:500;"></p>
             </div>
           </div>
 
-          <!-- 定时发布 -->
-          <div class="section-header">定时发布</div>
-          <div class="card">
-            <div class="card-row">
-              <span class="card-label">发布时间</span>
-              <input type="datetime-local" id="xhs-schedule-time" class="date-input" style="font-size:14px;">
+          <!-- 高级选项（默认折叠） -->
+          <details style="margin-top:12px;">
+            <summary style="font-size:13px;color:var(--text-tertiary);cursor:pointer;padding:8px 0;">
+              ⚙️ 自定义文案（可选）
+            </summary>
+            <div class="card" style="margin-top:8px;">
+              <div style="margin-bottom:10px;">
+                <label style="font-size:12px;color:var(--text-tertiary);display:block;margin-bottom:4px;">标题（最多20字）</label>
+                <input type="text" id="xhs-title" placeholder="留空=AI自动生成" maxlength="20" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);font-size:13px;">
+              </div>
+              <div style="margin-bottom:10px;">
+                <label style="font-size:12px;color:var(--text-tertiary);display:block;margin-bottom:4px;">正文</label>
+                <textarea id="xhs-content" placeholder="留空=AI自动生成" rows="3" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);font-size:13px;resize:vertical;"></textarea>
+              </div>
+              <div>
+                <label style="font-size:12px;color:var(--text-tertiary);display:block;margin-bottom:4px;">标签（逗号分隔）</label>
+                <input type="text" id="xhs-tags" placeholder="AI日报, 人工智能, 科技" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);font-size:13px;">
+              </div>
             </div>
-            <p style="font-size:12px;color:var(--text-tertiary);margin-top:6px;">设置后点「直接发布」将在指定时间发布（留空=立即发布）</p>
-          </div>
-
-          <!-- 使用说明 -->
-          <div class="card" style="margin-top:12px;">
-            <div class="card-section-title">使用说明</div>
-            <div class="card-desc">
-              <p>1. 登录小红书（扫码 / 短信 / Cookie导入）</p>
-              <p>2. 选择日期，自动加载对应日报图片和文案</p>
-              <p>3. 可自定义标题、正文和标签</p>
-              <p>4.「存草稿」保存到草稿箱 /「直接发布」立即发布</p>
-            </div>
-          </div>
+          </details>
 
         </div>
       </section>
@@ -481,7 +455,7 @@
     </div>
   </div>
 
-  <script src="icons.js?v=1778842500"></script>
+  <script src="icons.js?v=1778843000"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
