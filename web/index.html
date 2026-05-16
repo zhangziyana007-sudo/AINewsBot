@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>AI 日报</title>
-  <link rel="stylesheet" href="style.css?v=1778841300">
+  <link rel="stylesheet" href="style.css?v=1778842500">
 </head>
 <body>
 
@@ -226,6 +226,22 @@
               <p style="color:var(--text-tertiary);font-size:13px;margin:auto;">选择日期后加载图片</p>
             </div>
             <div style="margin-top:8px;font-size:12px;color:var(--text-tertiary);" id="xhs-images-info"></div>
+          </div>
+
+          <!-- 定时发布 -->
+          <div class="card" style="margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <label style="font-size:13px;color:var(--text-secondary);white-space:nowrap;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-3px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                定时发布
+              </label>
+              <input type="datetime-local" id="xhs-schedule-time" style="flex:1;min-width:180px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-size:13px;">
+              <button class="btn-action btn-action-accent" id="btn-xhs-schedule" disabled style="padding:6px 16px;font-size:13px;background:#7C3AED;color:#fff;border:none;border-radius:8px;cursor:pointer;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                <span>定时发布</span>
+              </button>
+            </div>
+            <p style="font-size:11px;color:var(--text-tertiary);margin-top:6px;">使用小红书原生定时发布，服务重启不影响</p>
           </div>
 
           <!-- 发布操作 -->
@@ -465,7 +481,7 @@
     </div>
   </div>
 
-  <script src="icons.js?v=1778841300"></script>
+  <script src="icons.js?v=1778842500"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
